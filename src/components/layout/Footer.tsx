@@ -4,7 +4,7 @@ import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import { Logo } from "@/components/ui/Logo";
 import { SoonBadge } from "@/components/ui/SoonBadge";
 import { contact, footerNav, legalNav, site, socialLinks } from "@/data/site";
-import { telHref } from "@/lib/utils";
+import { PhoneLinks } from "@/components/ui/PhoneLinks";
 
 /**
  * Site footer (spec §4.3): logo and short presentation, links to the main pages
@@ -48,10 +48,8 @@ export function Footer() {
             <h2 className="text-xs font-semibold tracking-[0.18em] text-white/50 uppercase">Contact</h2>
             <ul className="mt-5 space-y-3 text-white/80">
               <li>
-                {contact.phone ? (
-                  <a href={telHref(contact.phone)} className="transition-colors hover:text-white">
-                    {contact.phone}
-                  </a>
+                {contact.phones.length > 0 ? (
+                  <PhoneLinks stacked linkClassName="transition-colors hover:text-white [&+a]:mt-1" />
                 ) : (
                   <Placeholder>Téléphone à confirmer</Placeholder>
                 )}

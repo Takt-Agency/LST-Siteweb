@@ -4,7 +4,7 @@ import { QuoteForm, QuoteFormWithParams } from "@/components/quote/QuoteForm";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { quotePage } from "@/data/quote";
 import { contact } from "@/data/site";
-import { telHref } from "@/lib/utils";
+import { PhoneLinks } from "@/components/ui/PhoneLinks";
 
 export const metadata: Metadata = {
   title: "Demande de devis",
@@ -40,12 +40,12 @@ export default function QuotePage() {
                   ))}
                 </ol>
               </div>
-              {contact.phone && (
+              {contact.phones.length > 0 && (
                 <div className="rounded-xl bg-ink p-7 text-white">
                   <p className="text-sm text-white/70">Vous préférez en parler ?</p>
-                  <a href={telHref(contact.phone)} className="mt-2 block text-2xl font-semibold hover:text-brand-yellow">
-                    {contact.phone}
-                  </a>
+                  <div className="mt-2 space-y-1 text-2xl font-semibold">
+                    <PhoneLinks stacked linkClassName="hover:text-brand-yellow" />
+                  </div>
                   {contact.openingHours && <p className="mt-2 text-sm text-white/70">{contact.openingHours}</p>}
                 </div>
               )}

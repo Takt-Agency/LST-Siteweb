@@ -95,7 +95,8 @@ export interface NavItem extends NavLink {
 
 export interface ContactInfo {
   /** `null` means "à confirmer par LST Express" — never invent contact details. */
-  phone: string | null;
+  /** All phone numbers, main one first (empty = "à confirmer"). */
+  phones: string[];
   email: string | null;
   address: string | null;
   openingHours: string | null;

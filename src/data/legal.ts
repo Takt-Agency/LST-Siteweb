@@ -26,11 +26,12 @@ export interface LegalPageData {
 const company: [string, string][] = [
   ["Raison sociale", "LST Express"],
   ["Forme juridique", TODO],
-  ["Siège social", "Av. République, Immeuble Gallala, 2ème étage, 8030 Grombalia, Tunisie · BP 73"],
+  ["Siège social", "Avenue Hédi Nouira, Immeuble Aïcha, 8000 Nabeul, Tunisie"],
   ["Registre national des entreprises (RNE)", TODO],
   ["Matricule fiscal", TODO],
-  ["Téléphone", "+216 54 673 321"],
+  ["Téléphone", "+216 40 064 017"],
   ["E-mail", "commercial@lstexpress.tn"],
+  ["Site web", "www.lstexpress.tn"],
   ["Directeur de la publication", TODO],
 ];
 
@@ -93,7 +94,7 @@ export const privacyPolicy: LegalPageData = {
       title: "Responsable du traitement",
       content: [
         "Le responsable du traitement des données collectées sur ce site est LST Express.",
-        ["Adresse", "Av. République, Immeuble Gallala, 2ème étage, 8030 Grombalia, Tunisie · BP 73"],
+        ["Adresse", "Avenue Hédi Nouira, Immeuble Aïcha, 8000 Nabeul, Tunisie"],
         ["Contact", "commercial@lstexpress.tn"],
       ],
     },

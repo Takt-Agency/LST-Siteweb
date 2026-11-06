@@ -24,7 +24,7 @@ const dateTimeFormatter = new Intl.DateTimeFormat("fr-FR", {
   timeZone: "UTC",
 });
 
-/** "+216 54 673 321" → "tel:+21654673321" */
+/** "+216 40 064 017" → "tel:+21640064017" */
 export function telHref(phone: string): string {
   return `tel:${phone.replace(/[^d+]/g, "")}`;
 }

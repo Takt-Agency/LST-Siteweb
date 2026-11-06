@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { SoonBadge } from "@/components/ui/SoonBadge";
 import { contact, socialLinks } from "@/data/site";
-import { telHref } from "@/lib/utils";
+import { PhoneLinks } from "@/components/ui/PhoneLinks";
 
 /**
  * Slim utility bar above the navbar (tablet and up). Contact details come from
@@ -13,10 +13,10 @@ export function Topbar() {
       <div className="container-site flex h-9 items-center justify-between gap-6">
         <ul className="flex items-center gap-6">
           <li>
-            {contact.phone ? (
-              <a href={telHref(contact.phone)} className="text-white/85 transition-colors hover:text-brand-yellow">
-                {contact.phone}
-              </a>
+            {contact.phones.length > 0 ? (
+              <span className="text-white/85">
+                <PhoneLinks linkClassName="transition-colors hover:text-brand-yellow" />
+              </span>
             ) : (
               <Placeholder>Téléphone à confirmer</Placeholder>
             )}

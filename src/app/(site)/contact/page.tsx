@@ -6,8 +6,8 @@ import { ContactForm } from "@/components/contact/ContactForm";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { contactPage } from "@/data/contact";
 import { contact } from "@/data/site";
-import { telHref } from "@/lib/utils";
 import { Reveal } from "@/components/motion/Reveal";
+import { PhoneLinks } from "@/components/ui/PhoneLinks";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -16,7 +16,11 @@ export const metadata: Metadata = {
 
 export default function ContactPage() {
   const details = [
-    { label: "Téléphone", value: contact.phone, href: contact.phone ? telHref(contact.phone) : undefined },
+    {
+      label: contact.phones.length > 1 ? "Téléphones" : "Téléphone",
+      value: contact.phones.length > 0 ? <PhoneLinks stacked linkClassName="decoration-brand-yellow decoration-2 underline-offset-4 hover:underline" /> : null,
+      href: undefined,
+    },
     { label: "E-mail", value: contact.email, href: contact.email ? `mailto:${contact.email}` : undefined },
     { label: "Horaires", value: contact.openingHours },
     { label: "Adresse", value: contact.address },
@@ -60,17 +64,6 @@ export default function ContactPage() {
                 </div>
               ))}
             </dl>
-            {contact.mapsUrl && (
-              <a
-                href={contact.mapsUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group mt-5 inline-flex items-center gap-2 text-sm font-medium underline decoration-line decoration-2 underline-offset-[6px] hover:decoration-brand-yellow"
-              >
-                Itinéraire sur Google Maps
-                <FontAwesomeIcon icon={faArrowRight} aria-hidden className="-rotate-45 text-xs" />
-              </a>
-            )}
 
             <div className="mt-10 rounded-xl bg-ink p-7 text-white">
               <h2 className="text-xl font-semibold">{contactPage.quote.title}</h2>

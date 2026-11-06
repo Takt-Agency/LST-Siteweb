@@ -14,19 +14,19 @@ export const site = {
   signature: "Connecter les marchés. Optimiser vos opérations.",
   description:
     "LST Express accompagne les entreprises avec des solutions de transport, de logistique et de consulting, en Afrique et à l'international.",
-  url: "https://lstexpress.tn",
+  url: "https://www.lstexpress.tn",
   agency: { name: "Takt Agency", label: "Développé par", url: "https://takt-agency.net/" },
   /** News/blog: shown as "Bientôt" until LST Express publishes real articles. */
   newsEnabled: false,
 } as const;
 
 export const contact: ContactInfo = {
-  phone: "+216 54 673 321",
+  phones: ["+216 40 064 017"],
   email: "commercial@lstexpress.tn",
-  address: "Av. République, Immeuble Gallala, 2ème étage, 8030 Grombalia, Tunisie · BP 73",
+  address: "Avenue Hédi Nouira, Immeuble Aïcha, 8000 Nabeul, Tunisie",
   openingHours: "Lun–Ven 8h–17h · Sam 8h–13h",
   /** Google Maps search for the address — replace with the exact pin/Business Profile link when available. */
-  mapsUrl: "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent("Immeuble Gallala, Avenue de la République, 8030 Grombalia, Tunisie"),
+  mapsUrl: "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent("Immeuble Aïcha, Avenue Hédi Nouira, 8000 Nabeul, Tunisie"),
 };
 
 /** Only populated once LST Express provides validated data (spec §05-08). */

@@ -8,9 +8,9 @@ import { Icon } from "@/components/ui/Icon";
 import { PageHeader, type Crumb } from "@/components/ui/PageHeader";
 import { categoryLabels, serviceHref, services } from "@/data/services";
 import { contact } from "@/data/site";
-import { telHref } from "@/lib/utils";
 import type { Service } from "@/types";
 import { Reveal } from "@/components/motion/Reveal";
+import { PhoneLinks } from "@/components/ui/PhoneLinks";
 
 /**
  * Service detail template (spec §06): promise, description, offerings, benefits,
@@ -74,12 +74,9 @@ export function ServiceDetail({ service, crumbs }: { service: Service; crumbs: C
                   {service.ctaLabel}
                   <FontAwesomeIcon icon={faArrowRight} aria-hidden className="text-xs transition-transform group-hover:translate-x-0.5" />
                 </Link>
-                {contact.phone && (
+                {contact.phones.length > 0 && (
                   <p className="mt-4 text-sm text-white/70">
-                    Ou appelez-nous au{" "}
-                    <a href={telHref(contact.phone)} className="font-medium text-white hover:text-brand-yellow">
-                      {contact.phone}
-                    </a>
+                    Ou appelez-nous au <PhoneLinks linkClassName="font-medium text-white hover:text-brand-yellow" />
                   </p>
                 )}
               </div>

@@ -15,10 +15,11 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { contact, languages, mainNav } from "@/data/site";
 import { isActive } from "@/lib/nav";
-import { cn, telHref } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { Icon } from "@/components/ui/Icon";
 import { Logo } from "@/components/ui/Logo";
 import { SoonBadge } from "@/components/ui/SoonBadge";
+import { PhoneLinks } from "@/components/ui/PhoneLinks";
 
 /** Reads the pathname (may suspend under cacheComponents) — wrap in <Suspense>. */
 export function NavbarWithPathname() {
@@ -269,7 +270,7 @@ function MobileDrawer({ open, onClose, pathname }: { open: boolean; onClose: () 
         role="dialog"
         aria-modal="true"
         aria-label="Menu"
-        className="absolute inset-y-0 right-0 flex w-full max-w-sm flex-col overflow-y-auto bg-white shadow-2xl"
+        className="absolute inset-y-0 right-0 flex w-full flex-col overflow-y-auto bg-white shadow-2xl sm:max-w-sm"
       >
         <div className="flex h-16 items-center justify-between border-b border-line px-5">
           <Logo className="w-32" onNavigate={onClose} />
@@ -321,7 +322,7 @@ function MobileDrawer({ open, onClose, pathname }: { open: boolean; onClose: () 
           <Link href="/devis" onNavigate={onClose} className="inline-flex h-12 items-center justify-center rounded-md bg-ink font-medium text-white">
             Demander un devis
           </Link>
-          <ContactRow icon={<FontAwesomeIcon icon={faPhone} className="text-sm" />} value={contact.phone} href={contact.phone ? telHref(contact.phone) : undefined} fallback="Téléphone à confirmer" />
+          <ContactRow icon={<FontAwesomeIcon icon={faPhone} className="text-sm" />} value={contact.phones.length > 0 ? <PhoneLinks stacked linkClassName="hover:underline" /> : null} fallback="Téléphone à confirmer" />
           <ContactRow icon={<FontAwesomeIcon icon={faEnvelope} className="text-sm" />} value={contact.email} href={contact.email ? `mailto:${contact.email}` : undefined} fallback="E-mail à confirmer" />
           <ContactRow icon={<FontAwesomeIcon icon={faClock} className="text-sm" />} value={contact.openingHours} fallback="Horaires à confirmer" />
         </div>
@@ -330,7 +331,7 @@ function MobileDrawer({ open, onClose, pathname }: { open: boolean; onClose: () 
   );
 }
 
-function ContactRow({ icon, value, href, fallback }: { icon: ReactNode; value: string | null; href?: string; fallback: string }) {
+function ContactRow({ icon, value, href, fallback }: { icon: ReactNode; value: ReactNode; href?: string; fallback: string }) {
   return (
     <p className="flex items-center gap-3">
       <span aria-hidden className="text-muted">

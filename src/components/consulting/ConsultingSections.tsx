@@ -18,9 +18,9 @@ import { CroppedImage } from "@/components/ui/CroppedImage";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { consultingPage as c } from "@/data/consulting";
 import { contact } from "@/data/site";
-import { telHref } from "@/lib/utils";
 import type { Service } from "@/types";
 import { Reveal } from "@/components/motion/Reveal";
+import { PhoneLinks } from "@/components/ui/PhoneLinks";
 
 const icons = {
   leaders: faUserTie,
@@ -262,12 +262,9 @@ export function ConsultingCta() {
               {cta.secondary.label}
             </Link>
           </div>
-          {contact.phone && (
+          {contact.phones.length > 0 && (
             <p className="mt-6 text-sm text-ink/75">
-              Ou appelez-nous au{" "}
-              <a href={telHref(contact.phone)} className="font-medium text-ink underline-offset-4 hover:underline">
-                {contact.phone}
-              </a>
+              Ou appelez-nous au <PhoneLinks linkClassName="font-medium text-ink underline-offset-4 hover:underline" />
             </p>
           )}
         </Reveal>
