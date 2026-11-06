@@ -29,6 +29,14 @@
       transform: none;
     }
   }
+  @keyframes highlight {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
   @keyframes marquee {
     to {
       transform: translateX(-50%);

@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowRight, faLocationDot } from "@fortawesome/free-solid-svg-icons";
+import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import { ContactForm } from "@/components/contact/ContactForm";
-import { Eyebrow } from "@/components/ui/Eyebrow";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { contactPage } from "@/data/contact";
 import { contact } from "@/data/site";
@@ -61,6 +60,17 @@ export default function ContactPage() {
                 </div>
               ))}
             </dl>
+            {contact.mapsUrl && (
+              <a
+                href={contact.mapsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group mt-5 inline-flex items-center gap-2 text-sm font-medium underline decoration-line decoration-2 underline-offset-[6px] hover:decoration-brand-yellow"
+              >
+                Itinéraire sur Google Maps
+                <FontAwesomeIcon icon={faArrowRight} aria-hidden className="-rotate-45 text-xs" />
+              </a>
+            )}
 
             <div className="mt-10 rounded-xl bg-ink p-7 text-white">
               <h2 className="text-xl font-semibold">{contactPage.quote.title}</h2>
@@ -77,52 +87,6 @@ export default function ContactPage() {
         </div>
       </section>
 
-      {/* Location (spec §7.3) — the Google Maps embed is added once the address is confirmed */}
-      <section aria-labelledby="location-title" className="border-t border-line bg-paper py-16 lg:py-24">
-        <div className="container-site grid gap-10 lg:grid-cols-12 lg:items-center lg:gap-16">
-          <Reveal className="lg:col-span-4">
-            <Eyebrow className="text-muted">{contactPage.location.eyebrow}</Eyebrow>
-            <h2 id="location-title" className="mt-5 text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">
-              {contactPage.location.title}
-            </h2>
-            <p className="mt-6 text-lg">{contact.address ?? <span className="text-muted italic">Adresse à confirmer</span>}</p>
-            {contactPage.location.practical.length > 0 && (
-              <ul className="mt-4 space-y-1 text-muted">
-                {contactPage.location.practical.map((info) => (
-                  <li key={info}>{info}</li>
-                ))}
-              </ul>
-            )}
-            {contact.mapsUrl ? (
-              <a
-                href={contact.mapsUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group mt-8 inline-flex h-12 items-center gap-3 rounded-md bg-ink px-6 font-medium text-white transition-colors hover:bg-ink-soft"
-              >
-                Itinéraire
-                <FontAwesomeIcon icon={faArrowRight} aria-hidden className="text-xs text-brand-yellow" />
-              </a>
-            ) : (
-              <p className="mt-8 text-sm text-muted">Le bouton « Itinéraire » sera disponible dès que l&apos;adresse sera confirmée.</p>
-            )}
-          </Reveal>
-
-          <Reveal delay={0.1} className="lg:col-span-8">
-            <div className="bg-dots relative grid aspect-[16/10] place-items-center overflow-hidden rounded-xl border border-line bg-white sm:aspect-[16/8]">
-              <div className="relative text-center">
-                <span className="mx-auto grid size-14 place-items-center rounded-full bg-ink text-brand-yellow">
-                  <FontAwesomeIcon icon={faLocationDot} aria-hidden className="text-xl" />
-                </span>
-                <p className="mt-5 font-medium">Carte Google Maps</p>
-                <p className="mx-auto mt-1 max-w-xs text-sm text-muted">
-                  Intégrée après confirmation de l&apos;adresse, et chargée avec votre accord aux cookies.
-                </p>
-              </div>
-            </div>
-          </Reveal>
-        </div>
-      </section>
     </>
   );
 }

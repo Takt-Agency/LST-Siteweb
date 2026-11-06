@@ -2,7 +2,6 @@ import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRight, faBoxesStacked, faChartLine, faTruckFast } from "@fortawesome/free-solid-svg-icons";
 import { HeroVisual } from "@/components/home/HeroVisual";
-import { Eyebrow } from "@/components/ui/Eyebrow";
 import { hero, heroFeatures } from "@/data/hero";
 
 const featureIcons = {
@@ -13,18 +12,28 @@ const featureIcons = {
 
 /**
  * Homepage hero — minimal corporate layout: oversized headline and short pitch
- * on white, a wide cinematic photo with animated brand shapes (Motion), then the
- * three key points on hairlines.
+ * on white (highlighted keywords), a wide cinematic photo, then the three key
+ * points on a white panel overlapping the photo.
  */
 export function Hero() {
   return (
-    <section aria-labelledby="hero-title" className="bg-white pt-12 pb-10 sm:pt-16 lg:pt-20 lg:pb-14">
+    <section aria-labelledby="hero-title" className="isolate bg-white pt-12 pb-10 sm:pt-16 lg:pt-20 lg:pb-14">
       <div className="container-site">
         <div className="grid gap-8 lg:grid-cols-12 lg:items-end lg:gap-12">
           <div className="animate-rise lg:col-span-7">
-            <Eyebrow className="text-muted">{hero.eyebrow}</Eyebrow>
+            <p className="inline-flex items-center gap-2.5 rounded-full border border-line py-1.5 pr-4 pl-2 text-xs font-semibold tracking-[0.14em] text-muted uppercase">
+              <span className="relative grid size-5 place-items-center">
+                <span aria-hidden className="absolute inset-0 animate-ping rounded-full bg-brand-yellow/50 [animation-duration:2.4s]" />
+                <span aria-hidden className="relative size-2 rounded-full bg-brand-yellow" />
+              </span>
+              {hero.eyebrow}
+            </p>
             <h1 id="hero-title" className="mt-6 text-[2.6rem] leading-[1.02] font-semibold tracking-[-0.035em] sm:text-6xl lg:text-[4.4rem]">
-              {hero.title}
+              {hero.title}{" "}
+              <span className="relative inline-block whitespace-nowrap">
+                <span aria-hidden className="absolute inset-x-[-0.06em] bottom-[0.08em] -z-10 h-[0.32em] origin-left rounded-sm bg-brand-yellow/80 [animation:highlight_0.9s_cubic-bezier(0.2,0.7,0.2,1)_0.6s_both]" />
+                {hero.highlight}
+              </span>
               <span className="text-brand-yellow">.</span>
             </h1>
           </div>
@@ -54,8 +63,8 @@ export function Hero() {
 
         <HeroVisual image={hero.image} />
 
-        {/* Key points — soft cards on phones, hairline columns from tablet up */}
-        <ul className="mt-4 grid gap-3 sm:mt-0 sm:grid-cols-3 sm:gap-0">
+        {/* Key points — soft cards on phones; from tablet up a white panel overlapping the photo */}
+        <ul className="relative z-10 mt-4 grid gap-3 sm:mx-6 sm:-mt-10 sm:grid-cols-3 sm:gap-0 sm:rounded-xl sm:border sm:border-line sm:bg-white sm:px-6 sm:shadow-[0_24px_50px_-30px_rgb(22_22_22/0.35)] lg:mx-10 lg:-mt-12 lg:px-8">
           {heroFeatures.map((f, i) => (
             <li
               key={f.title}

@@ -8,7 +8,7 @@ import { telHref } from "@/lib/utils";
 
 /**
  * Site footer (spec §4.3): logo and short presentation, links to the main pages
- * and services, contact details (address / map link once confirmed), social links
+ * and services, contact details, social links
  * if any, legal pages, a secondary quote CTA and the "Développé par Takt Agency" credit.
  */
 export function Footer() {
@@ -68,16 +68,6 @@ export function Footer() {
               <li>{contact.openingHours ?? <Placeholder>Horaires à confirmer</Placeholder>}</li>
               <li>
                 {contact.address ?? <Placeholder>Adresse à confirmer</Placeholder>}
-                {contact.mapsUrl && (
-                  <a
-                    href={contact.mapsUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-1 block text-sm text-brand-yellow hover:text-white"
-                  >
-                    Voir sur Google Maps
-                  </a>
-                )}
               </li>
             </ul>
             {socialLinks.length > 0 && (

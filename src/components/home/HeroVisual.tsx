@@ -2,14 +2,22 @@
 
 import Image from "next/image";
 import { motion } from "motion/react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlane, faShip, faTruckFast } from "@fortawesome/free-solid-svg-icons";
 import type { MediaRef } from "@/types";
 
 const ease = [0.2, 0.7, 0.2, 1] as const;
 
+const modes = [
+  { icon: faTruckFast, label: "Route" },
+  { icon: faShip, label: "Mer" },
+  { icon: faPlane, label: "Air" },
+];
+
 /**
- * Hero photo with animated brand shapes (Motion): slow zoom-out on the photo,
- * two floating yellow squares and a yellow block behind the frame. All
- * decorative shapes are hidden from assistive technologies.
+ * Hero photo (Motion): slow zoom-out on the photo, a yellow block behind the
+ * frame and a glass "Route · Mer · Air" tag. Decorative shapes are hidden from
+ * assistive technologies.
  */
 export function HeroVisual({ image }: { image: MediaRef }) {
   return (
@@ -25,7 +33,6 @@ export function HeroVisual({ image }: { image: MediaRef }) {
 
       {/* The frame and photo are visible from the first paint (LCP); only the zoom is animated. */}
       <div className="relative aspect-[4/3] animate-rise overflow-hidden rounded-xl bg-paper [animation-delay:200ms] sm:aspect-[16/8] lg:aspect-[21/8]">
-        {/* Slow zoom-out on the photo */}
         <motion.div className="absolute inset-0" initial={{ scale: 1.12 }} animate={{ scale: 1 }} transition={{ duration: 2.4, ease: "easeOut" }}>
           <Image
             src={image.src}
@@ -37,31 +44,27 @@ export function HeroVisual({ image }: { image: MediaRef }) {
           />
         </motion.div>
 
-        {/* Rotating yellow square (bottom-right) */}
-        <motion.span
-          aria-hidden
-          className="pointer-events-none absolute right-[8%] bottom-[14%] size-6 bg-brand-yellow sm:size-8"
-          initial={{ opacity: 0, scale: 0 }}
-          animate={{ opacity: 1, scale: 1, rotate: [0, 90, 180] }}
-          transition={{
-            opacity: { duration: 0.6, delay: 1.5 },
-            scale: { duration: 0.6, delay: 1.5, ease },
-            rotate: { duration: 12, repeat: Infinity, ease: "linear", delay: 2 },
-          }}
-        />
+        {/* Soft top shade so the glass tag stays readable on bright skies */}
+        <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-black/25 to-transparent" />
 
-        {/* Small outline square floating (top-right) */}
-        <motion.span
-          aria-hidden
-          className="pointer-events-none absolute top-[18%] right-[30%] hidden size-5 border-2 border-brand-yellow sm:block"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1, y: [0, 12, 0], rotate: [0, 45, 0] }}
-          transition={{
-            opacity: { duration: 0.6, delay: 1.8 },
-            y: { duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1.8 },
-            rotate: { duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1.8 },
-          }}
-        />
+        {/* "Route · Mer · Air" glass tag */}
+        <motion.ul
+          aria-label="Modes de transport"
+          className="absolute top-4 left-4 flex items-center gap-1 rounded-full bg-white/85 p-1 pr-3 text-xs font-medium text-ink shadow-sm backdrop-blur sm:top-6 sm:left-6 sm:text-sm"
+          initial={{ opacity: 0, y: -12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 1, ease }}
+        >
+          {modes.map((m, i) => (
+            <li key={m.label} className="flex items-center gap-1.5">
+              {i > 0 && <span aria-hidden className="mx-1 size-1 rounded-full bg-ink/25" />}
+              <span className={`grid size-7 place-items-center rounded-full ${i === 0 ? "bg-brand-yellow" : "bg-paper"}`}>
+                <FontAwesomeIcon icon={m.icon} aria-hidden className="text-[0.7rem]" />
+              </span>
+              {m.label}
+            </li>
+          ))}
+        </motion.ul>
       </div>
     </div>
   );

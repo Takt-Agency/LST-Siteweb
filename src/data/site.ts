@@ -23,9 +23,10 @@ export const site = {
 export const contact: ContactInfo = {
   phone: "+216 54 673 321",
   email: "commercial@lstexpress.tn",
-  address: null,
+  address: "Av. République, Immeuble Gallala, 2ème étage, 8030 Grombalia, Tunisie · BP 73",
   openingHours: "Lun–Ven 8h–17h · Sam 8h–13h",
-  mapsUrl: null,
+  /** Google Maps search for the address — replace with the exact pin/Business Profile link when available. */
+  mapsUrl: "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent("Immeuble Gallala, Avenue de la République, 8030 Grombalia, Tunisie"),
 };
 
 /** Only populated once LST Express provides validated data (spec §05-08). */

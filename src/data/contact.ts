@@ -1,5 +1,5 @@
 /**
- * Contact page content (spec §03 site map, §7.3 contact & Google Maps).
+ * Contact page content (spec §03 site map, §7.3 contact).
  * Contact details themselves live in `contact` (src/data/site.ts).
  */
 
@@ -14,12 +14,6 @@ export const contactPage = {
     title: "Besoin d'un devis ?",
     text: "Pour une demande chiffrée, le formulaire de devis recueille directement les informations utiles.",
     cta: { label: "Demander un devis", href: "/devis" },
-  },
-  location: {
-    eyebrow: "Nous trouver",
-    title: "Localisation et informations pratiques",
-    /** Accès, stationnement… — only if supplied by LST Express (spec §7.3). */
-    practical: [] as string[],
   },
 };
 

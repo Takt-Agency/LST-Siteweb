@@ -26,7 +26,7 @@ export interface LegalPageData {
 const company: [string, string][] = [
   ["Raison sociale", "LST Express"],
   ["Forme juridique", TODO],
-  ["Siège social", TODO],
+  ["Siège social", "Av. République, Immeuble Gallala, 2ème étage, 8030 Grombalia, Tunisie · BP 73"],
   ["Registre national des entreprises (RNE)", TODO],
   ["Matricule fiscal", TODO],
   ["Téléphone", "+216 54 673 321"],
@@ -93,7 +93,7 @@ export const privacyPolicy: LegalPageData = {
       title: "Responsable du traitement",
       content: [
         "Le responsable du traitement des données collectées sur ce site est LST Express.",
-        ["Adresse", TODO],
+        ["Adresse", "Av. République, Immeuble Gallala, 2ème étage, 8030 Grombalia, Tunisie · BP 73"],
         ["Contact", "commercial@lstexpress.tn"],
       ],
     },

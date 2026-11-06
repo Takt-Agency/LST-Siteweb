@@ -3,7 +3,9 @@ import type { MediaRef } from "@/types";
 /** Homepage hero content (signature from the specification §1.3, CTAs from §05-01). */
 export const hero = {
   eyebrow: "Logistique internationale",
-  title: "Connecter les marchés, optimiser vos opérations",
+  title: "Connecter les marchés, optimiser",
+  /** Last words of the title, underlined with a yellow highlighter stroke. */
+  highlight: "vos opérations",
   text: {
     before: "Des solutions de transport, de logistique et de consulting pour accompagner la croissance ",
     strong: "de votre entreprise en Afrique",

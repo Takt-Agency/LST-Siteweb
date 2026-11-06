@@ -3,8 +3,17 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { TODO, legalPages, type LegalPageData } from "@/data/legal";
 import { cn, formatDate } from "@/lib/utils";
 
-function Value({ value }: { value: string }) {
-  return value === TODO ? <span className="font-normal text-muted italic">À compléter</span> : <>{value}</>;
+/**
+ * Drops rows whose value LST has not supplied yet (`TODO` in src/data/legal.ts),
+ * then sections left empty — they reappear once the value is filled in.
+ */
+function visibleSections(page: LegalPageData) {
+  return page.sections
+    .map((section) => ({
+      ...section,
+      content: section.content.filter((item) => typeof item === "string" || item[1] !== TODO),
+    }))
+    .filter((section) => section.content.length > 0);
 }
 
 /** Shared layout for the legal pages: side navigation + numbered sections. */
@@ -43,7 +52,7 @@ export function LegalPage({ page }: { page: LegalPageData }) {
           </nav>
 
           <div className="max-w-3xl lg:col-span-9">
-            {page.sections.map((section, i) => (
+            {visibleSections(page).map((section, i) => (
               <section key={section.title} className="border-t border-line py-10 first:border-t-0 first:pt-0">
                 <h2 className="flex gap-4 text-2xl font-semibold tracking-[-0.02em]">
                   <span className="pt-1 text-sm font-normal text-muted tabular-nums">{String(i + 1).padStart(2, "0")}</span>
@@ -56,9 +65,7 @@ export function LegalPage({ page }: { page: LegalPageData }) {
                     ) : (
                       <dl key={j} className="grid gap-1 border-b border-line pb-3 sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] sm:gap-6">
                         <dt className="text-sm text-muted">{item[0]}</dt>
-                        <dd className="font-medium text-ink">
-                          <Value value={item[1]} />
-                        </dd>
+                        <dd className="font-medium text-ink">{item[1]}</dd>
                       </dl>
                     ),
                   )}
