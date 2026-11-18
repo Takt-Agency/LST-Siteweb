@@ -1,41 +1,21 @@
 # LST-Siteweb
 
-Site web de **LST Express** — Logistique · Service · Transport ([lstexpress.tn](https://lstexpress.tn)).
-Développé par [Takt Agency](https://takt-agency.net/).
-
-## Stack
-
-- [Next.js](https://nextjs.org) 16 (App Router, Cache Components) · React 19 · TypeScript strict
-- Tailwind CSS 4 · police Inter (`next/font`)
-- Font Awesome (icônes) · Motion (animations) · Swiper (carrousel des services)
-
-## Démarrer
+Site vitrine LST Express (Next.js, React, TypeScript). Frontend uniquement : le formulaire de devis est une démonstration, rien n'est envoyé.
 
 ```bash
 npm install
 npm run dev      # http://localhost:3000
 ```
 
-Autres commandes :
-
-```bash
-npm run build    # build de production
-npm run start    # sert le build
-npm run lint
-```
-
 ## Organisation
 
-| Dossier | Contenu |
-|---|---|
-| `src/app/(site)/` | Pages publiques : accueil, services, consulting, à propos, actualités, contact, devis, pages légales |
-| `src/components/` | Composants (layout, accueil, services, formulaires, UI) |
-| `src/data/` | **Contenus du site** (textes, coordonnées, services, articles…) — à modifier ici |
-| `src/lib/` | Utilitaires, validation des formulaires, simulation d'envoi |
-| `public/` | Logos, images et visuels des services |
-
-## À savoir
-
-- **Frontend uniquement** : les formulaires (contact, devis) sont validés côté navigateur mais **l'envoi est simulé** (`src/lib/simulate.ts`). Aucun e-mail n'est envoyé et rien n'est enregistré tant qu'un backend n'est pas branché.
-- **Actualités** : le blog est masqué (« Bientôt »). Pour l'ouvrir, passer `newsEnabled` à `true` dans `src/data/site.ts`.
-- **Informations à compléter par LST** : adresse et lien Google Maps, mentions légales (forme juridique, RNE, matricule fiscal…), secteurs d'activité, chiffres clés, histoire et équipe. Les valeurs manquantes s'affichent « à confirmer » / « à compléter » ou leurs sections restent masquées.
+- `src/app/page.tsx` : la page d'accueil, assemblée à partir des composants.
+- `src/app/globals.css` : la feuille de style du site.
+- `src/data/site.ts` : tous les textes et coordonnées (services, FAQ, contact…).
+- `src/components/`
+  - `layout/` : en-tête, pied de page, bouton d'appel flottant.
+  - `journey/` : le parcours animé au défilement (avion, camion, bateau).
+  - `services/` : les cartes de services empilées.
+  - `home/` : bandeau, consulting, à propos, méthode, FAQ.
+  - `quote/` : la section et le formulaire de devis en 3 étapes.
+- `public/brand/` : logos officiels et flèche LST.

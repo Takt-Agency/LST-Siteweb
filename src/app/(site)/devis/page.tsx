@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { QuoteForm, QuoteFormWithParams } from "@/components/quote/QuoteForm";
+import { QuoteForm, QuoteFormWithParams } from "@/components/quote/QuoteRequestForm";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { quotePage } from "@/data/quote";
 import { contact } from "@/data/site";

@@ -1,0 +1,47 @@
+import Link from "next/link";
+import { consultingChain, consultingDomains, quoteHref } from "@/data/landing";
+
+export function Consulting() {
+  return (
+    <section className="sec dark-sec" id="consulting" aria-labelledby="cs-t">
+      <div className="wrap">
+        <div className="cons">
+          <div>
+            <span className="badge">Notre offre phare</span>
+            <div className="kick"><i />Consulting</div>
+            <h2 className="big" id="cs-t">
+              L’expertise qui fait la différence : analyser, conseiller, optimiser.
+            </h2>
+            <p className="intro">
+              Nous analysons votre organisation transport et logistique pour réduire vos coûts et fluidifier vos
+              opérations.
+            </p>
+            <p className="who">
+              <b>Pour qui ?</b> Dirigeants, responsables achats, supply chain ou opérations, importateurs et
+              exportateurs, entreprises industrielles et commerciales.
+            </p>
+            <div className="acts2">
+              <Link className="btn" href={quoteHref("consulting")}>
+                Demander un diagnostic
+              </Link>
+            </div>
+          </div>
+          <ul className="dom">
+            {consultingDomains.map((d) => (
+              <li key={d}>{d}</li>
+            ))}
+          </ul>
+        </div>
+        <div className="chain">
+          {consultingChain.map((c, i) => (
+            <div key={c.title}>
+              <small>{String(i + 1).padStart(2, "0")}</small>
+              <h3>{c.title}</h3>
+              <p>{c.text}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}

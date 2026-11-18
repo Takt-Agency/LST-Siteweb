@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
-import { ServiceDetail } from "@/components/services/ServiceDetail";
+import { ServiceDetailView } from "@/components/services/ServiceDetailView";
 import { PageSkeleton } from "@/components/ui/PageSkeleton";
 import { getService, transportServices } from "@/data/services";
 
@@ -32,7 +32,7 @@ async function ServiceContent({ params }: { params: PageProps<"/services/[slug]"
   if (!service || slug === "consulting") notFound();
 
   return (
-    <ServiceDetail
+    <ServiceDetailView
       service={service}
       crumbs={[{ label: "Accueil", href: "/" }, { label: "Services", href: "/services" }, { label: service.title }]}
     />

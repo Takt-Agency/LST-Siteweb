@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { FinalCta } from "@/components/home/FinalCta";
-import { Method } from "@/components/home/Method";
-import { ServicesIndex } from "@/components/services/ServicesIndex";
+import { ServicesMethod } from "@/components/home/ServicesMethod";
+import { ServicesCatalog } from "@/components/services/ServicesCatalog";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { serviceCategories, serviceHref, services, servicesPage } from "@/data/services";
 
@@ -27,11 +27,11 @@ export default function ServicesPage() {
       </PageHeader>
       <section aria-label="Liste des services" className="bg-white py-14 lg:py-20">
         <div className="container-site">
-          <ServicesIndex items={rows} categories={serviceCategories} />
+          <ServicesCatalog items={rows} categories={serviceCategories} />
         </div>
       </section>
       <div className="border-t border-line">
-        <Method />
+        <ServicesMethod />
       </div>
       <FinalCta />
     </>

@@ -2,16 +2,17 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { config } from "@fortawesome/fontawesome-svg-core";
 import "@fortawesome/fontawesome-svg-core/styles.css";
-import { MotionProvider } from "@/components/motion/MotionProvider";
 import { site } from "@/data/site";
 import "./globals.css";
 
-// Font Awesome's CSS is imported above, so don't inject it again at runtime (no icon flash on SSR).
+// La CSS de Font Awesome est importée ci-dessus : ne pas l'injecter une seconde fois au chargement.
 config.autoAddCss = false;
 
-/** Inter — site typeface (variable font, self-hosted by next/font at build time). */
+/** Inter (police variable, auto-hébergée par next/font au moment du build). */
 const inter = Inter({
   subsets: ["latin"],
+  style: ["normal", "italic"],
+  axes: ["opsz"],
   variable: "--font-inter",
   display: "swap",
 });
@@ -19,32 +20,27 @@ const inter = Inter({
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: {
-    default: `${site.name} — ${site.signature}`,
+    default: site.name,
     template: `%s | ${site.name}`,
   },
-  description: site.description,
-  openGraph: {
-    type: "website",
-    locale: "fr_FR",
-    siteName: site.name,
-    images: [{ url: "/images/lst-hero-logistique.png", width: 1672, height: 941 }],
-  },
+  description: "Transport, logistique et consulting pour les entreprises, en Afrique et à l’international.",
+  openGraph: { type: "website", locale: "fr_FR", siteName: site.name },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#F2F3F5",
+  viewportFit: "cover",
+  themeColor: "#0e1012",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="fr" className={`${inter.variable} h-full antialiased`}>
-      {/* Browser extensions (e.g. ColorZilla's cz-shortcut-listen) add attributes to <body>
-          before hydration; ignore those attribute mismatches on this element only. */}
-      <body className="flex min-h-full flex-col" suppressHydrationWarning>
+    <html lang="fr" className={`${inter.variable} antialiased`}>
+      {/* Des extensions (ex. ColorZilla) ajoutent des attributs à <body> avant l'hydratation. */}
+      <body suppressHydrationWarning>
         <noscript>
           <style>{"[data-reveal]{opacity:1!important;transform:none!important}"}</style>
         </noscript>
-        <MotionProvider>{children}</MotionProvider>
+        {children}
       </body>
     </html>
   );
