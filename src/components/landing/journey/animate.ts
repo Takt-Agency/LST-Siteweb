@@ -13,6 +13,9 @@ const win = (p: number, a: number, b: number) => {
 
 type Point = { x: number; y: number; ang: number };
 
+/** Opacité maximale des nuages de l'introduction (au-dessus du voile sombre, sous le titre). */
+const INTRO_CLOUD_OPACITY = 0.62;
+
 function at(path: SVGPathElement, len: number, t: number): Point {
   const l = cl(t, 0, 1) * len;
   const a = path.getPointAtLength(l);
@@ -52,7 +55,8 @@ export function startJourney(sec: HTMLElement) {
   const L = { A: P.A.getTotalLength(), R: P.R.getTotalLength(), S: P.S.getTotalLength() };
   (["A", "R", "S"] as const).forEach((k) => P[k].setAttribute("stroke-dasharray", `${L[k]} ${L[k]}`));
 
-  const icEls = $$<SVGEllipseElement>("#iclouds ellipse");
+  const icEls = $$<SVGImageElement>("#iclouds image");
+  const cShadows = $<SVGGElement>("#cshadows");
   const plane = $<SVGGElement>("#plane");
   const pShadow = $<SVGGElement>("#pShadow");
   const truck = $<SVGGElement>("#truck");
@@ -130,11 +134,12 @@ export function startJourney(sec: HTMLElement) {
       bx = (((bx % (Wd + 2 * R0)) + (Wd + 2 * R0)) % (Wd + 2 * R0)) - R0;
       by = (((by % (Ht + 2 * R0)) + (Ht + 2 * R0)) % (Ht + 2 * R0)) - R0;
       const ex = cxs + (bx - cxs) * (1 + 2.6 * rev), ey = cys + (by - cys) * (1 + 2.6 * rev);
-      el.setAttribute("cx", ex.toFixed(1));
-      el.setAttribute("cy", ey.toFixed(1));
-      el.setAttribute("rx", (R0 * (1 + 0.6 * rev)).toFixed(1));
-      el.setAttribute("ry", (R0 * 0.6 * (1 + 0.6 * rev)).toFixed(1));
-      el.setAttribute("opacity", (1 - rev).toFixed(3));
+      const rx = R0 * 1.15 * (1 + 0.6 * rev), ry = rx * 0.625;
+      el.setAttribute("x", (ex - rx).toFixed(1));
+      el.setAttribute("y", (ey - ry).toFixed(1));
+      el.setAttribute("width", (2 * rx).toFixed(1));
+      el.setAttribute("height", (2 * ry).toFixed(1));
+      el.setAttribute("opacity", (INTRO_CLOUD_OPACITY * (1 - rev)).toFixed(3));
     });
 
     /* itinéraires */
@@ -208,6 +213,7 @@ export function startJourney(sec: HTMLElement) {
       el.style.transform = `translate3d(${cx - sz / 2}px,${cy - sz * 0.31}px,0)`;
       el.style.opacity = String(cop);
     });
+    cShadows.setAttribute("opacity", (cop * 0.42).toFixed(3));
 
     /* textes */
     const ho = 1 - sm(s(p, 0.03, 0.07));

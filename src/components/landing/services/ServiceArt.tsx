@@ -407,11 +407,12 @@ const consulting = (
 
     {/* indicateur flottant */}
     <g className="co-kpi">
-      <rect x="292" y="140" width="148" height="86" rx="16" fill="#F8B80B" />
-      <circle cx="330" cy="183" r="20" fill="none" stroke="#161616" strokeWidth="7" opacity=".2" />
-      <circle cx="330" cy="183" r="20" fill="none" stroke="#161616" strokeWidth="7" pathLength="100" strokeDasharray="72 100" strokeLinecap="round" transform="rotate(-90 330 183)" />
-      <rect x="362" y="170" width="60" height="9" rx="4.5" fill="#161616" />
-      <rect x="362" y="188" width="40" height="7" rx="3.5" fill="#161616" opacity=".45" />
+      <rect x="296" y="36" width="148" height="86" rx="16" fill="#000" opacity=".35" />
+      <rect x="292" y="28" width="148" height="86" rx="16" fill="#F8B80B" />
+      <circle cx="330" cy="71" r="20" fill="none" stroke="#161616" strokeWidth="7" opacity=".2" />
+      <circle cx="330" cy="71" r="20" fill="none" stroke="#161616" strokeWidth="7" pathLength="100" strokeDasharray="72 100" strokeLinecap="round" transform="rotate(-90 330 71)" />
+      <rect x="362" y="58" width="60" height="9" rx="4.5" fill="#161616" />
+      <rect x="362" y="76" width="40" height="7" rx="3.5" fill="#161616" opacity=".45" />
     </g>
 
     {/* loupe : le diagnostic */}

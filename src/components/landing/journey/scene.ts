@@ -86,3 +86,12 @@ export const skyClouds: [number, number, number][] = [
   [200, 900, 420], [520, 1500, 520], [760, 620, 360], [380, 300, 460], [980, 1200, 380],
   [60, 1300, 300], [640, 2100, 480], [1150, 420, 300], [900, 1750, 340],
 ];
+
+/**
+ * Textures de cumulus vus du dessus (640 × 400, soleil en haut à gauche) et leurs ombres portées.
+ * Générées une fois pour toutes (bruit fractal + éclairage) : seules des transformations sont animées.
+ */
+export const cloudTexture = (i: number) => `/images/clouds/cloud-${(i % 4) + 1}.webp`;
+export const cloudShadow = (i: number) => `/images/clouds/cloud-shadow-${(i % 4) + 1}.webp`;
+/** Décalage de l'ombre au sol (vers le bas à droite, à l'opposé du soleil), en coordonnées de la carte. */
+export const CLOUD_SHADOW_OFFSET = { x: 90, y: 140 };

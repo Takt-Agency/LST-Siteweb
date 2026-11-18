@@ -49,8 +49,8 @@
 .svc.k-gold .cta{background:#161616;color:#F2F3F5}
 .svc.k-gold .cta:hover{box-shadow:0 10px 22px -10px rgba(22,22,22,.8)}
 .svc .more{display:inline-flex;align-items:center;gap:8px;padding:9.5px 20px;border:1.5px solid currentColor;border-radius:8px;color:inherit;font-weight:500;text-decoration:none;transition:background .15s,color .15s,border-color .15s}
-.svc .more span{transition:transform .15s}
-.svc .more:hover span{transform:translateX(3px)}
+.svc .more span[aria-hidden]{transition:transform .15s}
+.svc .more:hover span[aria-hidden]{transform:translateX(3px)}
 .svc .cta:focus-visible,.svc .more:focus-visible{outline:2px solid #F8B80B;outline-offset:3px}
 .svc.k-dark .more{border-color:rgba(242,243,245,.3)}
 .svc.k-dark .more:hover{border-color:#F8B80B;color:#F8B80B}
@@ -164,6 +164,14 @@
   .svc .list svg{width:17px;height:17px}
   .svc .svc-actions{gap:8px}
   .svc .cta,.svc .more{padding:9px 14px;font-size:.9rem}
+}
+@media (max-width:480px){
+  .svc .more .lg{display:none}
+  .svc .cta,.svc .more{padding:9px 13px;font-size:.86rem}
+}
+@media (max-width:820px) and (max-height:720px){
+  .svc .art{height:104px}
+  .svc .desc{font-size:.9rem}
 }
 
 @media (prefers-reduced-motion:reduce){

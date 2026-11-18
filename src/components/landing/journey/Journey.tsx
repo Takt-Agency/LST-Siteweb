@@ -5,7 +5,7 @@ import Link from "next/link";
 import { journeySteps } from "@/data/landing";
 import { PlaneShape, PlaneSilhouette } from "@/components/landing/PlaneShape";
 import { ShipShape, TruckShape } from "@/components/landing/Vehicles";
-import { scene, skyClouds } from "./scene";
+import { CLOUD_SHADOW_OFFSET, cloudShadow, cloudTexture, scene, skyClouds } from "./scene";
 import { startJourney } from "./animate";
 
 
@@ -33,30 +33,28 @@ export function Journey() {
             <pattern id="grid" width="200" height="200" patternUnits="userSpaceOnUse">
               <path d="M200 0H0V200" fill="none" stroke="#F2F3F5" strokeOpacity=".045" strokeWidth="2" />
             </pattern>
+            {/* mer : vaguelettes claires sur fond bleu (#stage) */}
             <pattern id="ripple" width="120" height="60" patternUnits="userSpaceOnUse">
-              <path d="M0 30q15-8 30 0t30 0" fill="none" stroke="#F2F3F5" strokeOpacity=".07" strokeWidth="2" />
+              <path d="M0 30q15-8 30 0t30 0" fill="none" stroke="#9fd8ff" strokeOpacity=".13" strokeWidth="2" />
+              <path d="M66 52q10-5 20 0" fill="none" stroke="#9fd8ff" strokeOpacity=".08" strokeWidth="1.5" />
             </pattern>
             <radialGradient id="veilG" cx="60%" cy="45%" r="75%">
               <stop offset="0" stopColor="#23262c" />
               <stop offset="1" stopColor="#0b0c0e" />
             </radialGradient>
-            <radialGradient id="cg">
-              <stop offset="0" stopColor="#F2F3F5" stopOpacity=".42" />
-              <stop offset=".55" stopColor="#F2F3F5" stopOpacity=".16" />
-              <stop offset="1" stopColor="#F2F3F5" stopOpacity="0" />
-            </radialGradient>
           </defs>
 
           <g id="cam">
             <rect x="-3000" y="-2000" width="11000" height="7000" fill="url(#ripple)" />
+            {/* hauts-fonds : dégradé turquoise le long de la côte (traits superposés, sans filtre coûteux) */}
+            <g fill="none" stroke="#2fa3d6" strokeLinejoin="round">
+              <path d={LAND} strokeWidth="190" strokeOpacity=".07" />
+              <path d={LAND} strokeWidth="120" strokeOpacity=".09" />
+              <path d={LAND} strokeWidth="64" strokeOpacity=".13" />
+              <path d={LAND} strokeWidth="26" stroke="#7fd3f2" strokeOpacity=".22" />
+            </g>
             {/* terre */}
-            <path
-              id="land"
-              fill="#1b1c1f"
-              stroke="#2c2f35"
-              strokeWidth="4"
-              d="M1000 -400C960 300 1080 650 1020 1000S960 1700 1060 2100S1010 2600 1040 3000L2960 3000C3020 2400 2950 2000 3000 1720L3000 1440C3050 1100 2950 700 3010 300S2990 -100 3000 -400Z"
-            />
+            <path id="land" fill="#1b1c1f" stroke="#2c2f35" strokeWidth="4" d={LAND} />
             <g id="blocks">
               {scene.blocks.map((b, i) => (
                 <rect key={i} x={b.x} y={b.y} width={b.width} height={b.height} rx="3" fill={b.fill} opacity={b.opacity} />
@@ -108,6 +106,21 @@ export function Journey() {
             </g>
 
             <rect x="-3000" y="-2000" width="11000" height="7000" fill="url(#grid)" />
+
+            {/* ombres des nuages au sol (visibles pendant le vol) */}
+            <g id="cshadows" opacity="0">
+              {skyClouds.map(([x, y, size], i) => (
+                <image
+                  key={i}
+                  href={cloudShadow(i)}
+                  x={x - size / 2 + CLOUD_SHADOW_OFFSET.x}
+                  y={y - size * 0.31 + CLOUD_SHADOW_OFFSET.y}
+                  width={size}
+                  height={size * 0.62}
+                  preserveAspectRatio="none"
+                />
+              ))}
+            </g>
 
             {/* itinéraires */}
             <g fill="none" strokeLinecap="round" strokeLinejoin="round">
@@ -166,7 +179,7 @@ export function Journey() {
           <rect id="veil" x="0" y="0" width="100%" height="100%" fill="url(#veilG)" />
           <g id="iclouds">
             {scene.introClouds.map((_, i) => (
-              <ellipse key={i} fill="url(#cg)" />
+              <image key={i} href={cloudTexture(i)} preserveAspectRatio="none" opacity="0" />
             ))}
           </g>
           <g id="cam2">
@@ -178,7 +191,7 @@ export function Journey() {
 
         <div id="clouds">
           {skyClouds.map((_, i) => (
-            <div key={i} className="cl" />
+            <div key={i} className="cl" style={{ backgroundImage: `url(${cloudTexture(i + 1)})` }} />
           ))}
         </div>
         <div id="scrim" />
@@ -232,7 +245,9 @@ export function Journey() {
   );
 }
 
-const ROUTE_AIR = "M150 1900C700 1600 800 700 1230 700L1760 700";
+const LAND =
+  "M1000 -400C960 300 1080 650 1020 1000S960 1700 1060 2100S1010 2600 1040 3000L2960 3000C3020 2400 2950 2000 3000 1720L3000 1440C3050 1100 2950 700 3010 300S2990 -100 3000 -400Z";
+const ROUTE_AIR ="M150 1900C700 1600 800 700 1230 700L1760 700";
 const ROUTE_ROAD =
   "M1820 800L1820 1000Q1820 1040 1860 1040L2400 1040Q2440 1040 2440 1080L2440 1500Q2440 1540 2480 1540L2930 1540";
 const ROUTE_SEA = "M3290 1668C3600 1668 3760 1860 4380 2080";

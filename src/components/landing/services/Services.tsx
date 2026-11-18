@@ -72,7 +72,7 @@ export function Services() {
                         {s.cta}
                       </Link>
                       <Link className="more" href={s.href} aria-label={`Découvrir le service ${s.title}`}>
-                        Découvrir le service <span aria-hidden="true">→</span>
+                        Découvrir<span className="lg"> le service</span> <span aria-hidden="true">→</span>
                       </Link>
                     </div>
                   </div>
