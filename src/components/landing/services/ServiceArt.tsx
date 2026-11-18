@@ -12,17 +12,13 @@ const ARROW = "/brand/lst-fleche.png";
  * carte au premier plan (classe `.on` posée par ServiceStack).
  */
 export function ServiceArt({ kind }: { kind: ServiceArtKind }) {
-  const { scene, chips } = arts[kind];
+  const { scene, chip } = arts[kind];
   return (
     <div className={`art art-${kind}`} aria-hidden="true">
       {scene}
-      <span className="chip c1">
-        <i />
-        {chips[0]}
-      </span>
       <span className="chip c2">
         <i />
-        {chips[1]}
+        {chip}
       </span>
     </div>
   );
@@ -77,9 +73,6 @@ const truck = (
         <stop offset="1" stopColor="#F8B80B" stopOpacity="0" />
       </linearGradient>
     </defs>
-
-    <circle cx="372" cy="98" r="80" fill="#F8B80B" opacity=".07" />
-    <circle cx="372" cy="98" r="40" fill="#F8B80B" />
 
     <g fill="#26282d">
       {CITY.map(([x, w, h]) => (
@@ -425,11 +418,12 @@ const consulting = (
   </svg>
 );
 
-const arts: Record<ServiceArtKind, { scene: React.ReactNode; chips: [string, string] }> = {
-  truck: { scene: truck, chips: ["National & international", "Porte-à-porte"] },
-  ship: { scene: ship, chips: ["20’ · 40’ · 40’ HC", "Import / Export"] },
-  plane: { scene: plane, chips: ["Envois urgents", "Groupage aérien"] },
-  customs: { scene: customs, chips: ["Documents contrôlés", "Incoterms"] },
-  logistics: { scene: logistics, chips: ["Coordination multimodale", "Flux planifiés"] },
-  consulting: { scene: consulting, chips: ["Diagnostic", "Optimisation des coûts"] },
+/** Illustration et étiquette (en bas à droite) de chaque carte. */
+const arts: Record<ServiceArtKind, { scene: React.ReactNode; chip: string }> = {
+  truck: { scene: truck, chip: "Porte-à-porte" },
+  ship: { scene: ship, chip: "Import / Export" },
+  plane: { scene: plane, chip: "Groupage aérien" },
+  customs: { scene: customs, chip: "Incoterms" },
+  logistics: { scene: logistics, chip: "Flux planifiés" },
+  consulting: { scene: consulting, chip: "Optimisation des coûts" },
 };

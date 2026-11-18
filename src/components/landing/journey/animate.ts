@@ -13,8 +13,9 @@ const win = (p: number, a: number, b: number) => {
 
 type Point = { x: number; y: number; ang: number };
 
-/** Opacité maximale des nuages de l'introduction (au-dessus du voile sombre, sous le titre). */
-const INTRO_CLOUD_OPACITY = 0.62;
+/** Opacité maximale des nuages : introduction (au-dessus du ciel, sous le titre) et vol au-dessus de la carte. */
+const INTRO_CLOUD_OPACITY = 0.6;
+const FLIGHT_CLOUD_OPACITY = 0.6;
 
 function at(path: SVGPathElement, len: number, t: number): Point {
   const l = cl(t, 0, 1) * len;
@@ -49,7 +50,7 @@ export function startJourney(sec: HTMLElement) {
   const stage = $<HTMLElement>("#stage");
   const cam = $<SVGGElement>("#cam");
   const cam2 = $<SVGGElement>("#cam2");
-  const veil = $<SVGRectElement>("#veil");
+  const veil = $<SVGGElement>("#veil");
   const P = { A: $<SVGPathElement>("#rA"), R: $<SVGPathElement>("#rR"), S: $<SVGPathElement>("#rS") };
   const B = [$<SVGPathElement>("#bA"), $<SVGPathElement>("#bR"), $<SVGPathElement>("#bS")];
   const L = { A: P.A.getTotalLength(), R: P.R.getTotalLength(), S: P.S.getTotalLength() };
@@ -139,7 +140,12 @@ export function startJourney(sec: HTMLElement) {
       el.setAttribute("y", (ey - ry).toFixed(1));
       el.setAttribute("width", (2 * rx).toFixed(1));
       el.setAttribute("height", (2 * ry).toFixed(1));
-      el.setAttribute("opacity", (INTRO_CLOUD_OPACITY * (1 - rev)).toFixed(3));
+      /* côté texte (gauche sur ordinateur, bas sur mobile), les nuages se fondent dans la brume :
+         sous le voile bleu nuit, ils paraîtraient gris comme des nuages d'orage */
+      const haze = mobile
+        ? 1 - 0.9 * sm(s(ey, Ht * 0.5, Ht * 0.72))
+        : 0.1 + 0.9 * sm(s(ex, Wd * 0.2, Wd * 0.48));
+      el.setAttribute("opacity", (INTRO_CLOUD_OPACITY * haze * (1 - rev)).toFixed(3));
     });
 
     /* itinéraires */
@@ -204,7 +210,7 @@ export function startJourney(sec: HTMLElement) {
 
     /* nuages (parallaxe au-dessus de la carte) */
     const par = 1.7;
-    const cop = alt * (1 - w) * 0.9 * (p < 0.34 ? 1 : 0) * sm(s(p, 0.07, 0.12));
+    const cop = alt * (1 - w) * FLIGHT_CLOUD_OPACITY * (p < 0.34 ? 1 : 0) * sm(s(p, 0.07, 0.12));
     skyClouds.forEach((d, c) => {
       const el = cEls[c];
       const cx = A.x + (d[0] - C.x) * sc * par, cy = A.y + (d[1] - C.y) * sc * par, sz = d[2] * sc * par;

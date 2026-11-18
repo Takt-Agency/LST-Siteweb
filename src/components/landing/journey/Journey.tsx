@@ -38,9 +38,16 @@ export function Journey() {
               <path d="M0 30q15-8 30 0t30 0" fill="none" stroke="#9fd8ff" strokeOpacity=".13" strokeWidth="2" />
               <path d="M66 52q10-5 20 0" fill="none" stroke="#9fd8ff" strokeOpacity=".08" strokeWidth="1.5" />
             </pattern>
-            <radialGradient id="veilG" cx="60%" cy="45%" r="75%">
-              <stop offset="0" stopColor="#23262c" />
-              <stop offset="1" stopColor="#0b0c0e" />
+            {/* ciel de l'introduction : même bleu profond que la mer (--water, #0b2e4c), à peine nuancé,
+                pour que le passage du ciel à la mer soit continu ; léger halo bleu clair */}
+            <linearGradient id="skyG" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stopColor="#0a2844" />
+              <stop offset=".5" stopColor="#0b2e4c" />
+              <stop offset="1" stopColor="#0e3656" />
+            </linearGradient>
+            <radialGradient id="hazeG" cx="70%" cy="35%" r="60%">
+              <stop offset="0" stopColor="#9fd8ff" stopOpacity=".12" />
+              <stop offset="1" stopColor="#9fd8ff" stopOpacity="0" />
             </radialGradient>
           </defs>
 
@@ -176,7 +183,10 @@ export function Journey() {
             </g>
           </g>
 
-          <rect id="veil" x="0" y="0" width="100%" height="100%" fill="url(#veilG)" />
+          <g id="veil">
+            <rect x="0" y="0" width="100%" height="100%" fill="url(#skyG)" />
+            <rect x="0" y="0" width="100%" height="100%" fill="url(#hazeG)" />
+          </g>
           <g id="iclouds">
             {scene.introClouds.map((_, i) => (
               <image key={i} href={cloudTexture(i)} preserveAspectRatio="none" opacity="0" />

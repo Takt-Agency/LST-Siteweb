@@ -74,7 +74,11 @@ function buildScene() {
 
   // Nuages de l'introduction (ils s'écartent au début du défilement).
   const introClouds: IntroCloud[] = [];
-  for (let n = 0; n < 16; n++) introClouds.push({ x: rnd(), y: rnd(), r: 110 + rnd() * 230, sp: 0.6 + rnd() * 0.8 });
+  // Comme une mer de nuages vue d'avion : beaucoup de petits cumulus et quelques gros.
+  for (let n = 0; n < 26; n++) {
+    const big = rnd() < 0.3;
+    introClouds.push({ x: rnd(), y: rnd(), r: big ? 180 + rnd() * 110 : 60 + rnd() * 100, sp: 0.6 + rnd() * 0.8 });
+  }
 
   return { roads, blocks, stacks, boxes, introClouds };
 }
@@ -88,10 +92,13 @@ export const skyClouds: [number, number, number][] = [
 ];
 
 /**
- * Textures de cumulus vus du dessus (640 × 400, soleil en haut à gauche) et leurs ombres portées.
+ * Textures de cumulus vus du dessus (640 × 400, soleil en haut à gauche, ombres teintées par le bleu du ciel)
+ * et leurs ombres portées.
  * Générées une fois pour toutes (bruit fractal + éclairage) : seules des transformations sont animées.
  */
-export const cloudTexture = (i: number) => `/images/clouds/cloud-${(i % 4) + 1}.webp`;
-export const cloudShadow = (i: number) => `/images/clouds/cloud-shadow-${(i % 4) + 1}.webp`;
+/** À incrémenter quand les images sont régénérées : force les navigateurs à recharger les nouvelles. */
+const CLOUDS_VERSION = 2;
+export const cloudTexture = (i: number) => `/images/clouds/cloud-${(i % 4) + 1}.webp?v=${CLOUDS_VERSION}`;
+export const cloudShadow = (i: number) => `/images/clouds/cloud-shadow-${(i % 4) + 1}.webp?v=${CLOUDS_VERSION}`;
 /** Décalage de l'ombre au sol (vers le bas à droite, à l'opposé du soleil), en coordonnées de la carte. */
 export const CLOUD_SHADOW_OFFSET = { x: 90, y: 140 };
