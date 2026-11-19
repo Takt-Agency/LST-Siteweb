@@ -1,0 +1,89 @@
+{
+  "$comment": "Source unique des séquences : lue par scripts/blender/render_sequences.py, scripts/make-placeholders.mjs et scripts/encode-frames.mjs. Voir docs/assets.md.",
+  "defaults": {
+    "desktopWidth": 1920,
+    "mobileWidth": 960,
+    "mobileStep": 2,
+    "avifQuality": 50,
+    "avifEffort": 4,
+    "webpQuality": 72,
+    "budgetDesktopMB": 6,
+    "budgetMobileMB": 2
+  },
+  "liveries": {
+    "yellow": { "cab": "#f8b80b" },
+    "black": { "cab": "#1c1e21" }
+  },
+  "containerColors": ["#f8b80b", "#f2f3f5", "#33373d"],
+  "blender": {
+    "samples": 160,
+    "hdri": "assets-src/hdri/studio.exr",
+    "truckView": { "orthoScale": 24, "pivotZ": 2.0, "distance": 60 },
+    "loadView": { "lens": 85, "elevationDeg": 16, "azimuthDeg": 32, "distance": 75, "targetZ": 2.5 },
+    "models": {
+      "truck": {
+        "file": "truck.glb",
+        "forward": "+X",
+        "scale": 1.0,
+        "wheelPattern": "(?i)wheel|tire|tyre|rim",
+        "materials": { "(?i)cab|paint|body": "cab", "(?i)trailer|container|box": "white", "(?i)chassis|frame": "anthracite" },
+        "decal": { "target": "(?i)trailer|container|box", "width": 4.8, "offsetX": -2.0, "centerZ": 2.6 }
+      },
+      "reachstacker": {
+        "file": "reachstacker.glb",
+        "forward": "+X",
+        "scale": 1.0,
+        "spreaderPattern": "(?i)spreader",
+        "action": "load",
+        "releaseAt": 0.9
+      },
+      "ship": { "file": "ship.glb", "forward": "+X", "scale": 1.0, "generateContainers": true },
+      "plane": { "file": "plane.glb", "forward": "+X", "scale": 1.0 }
+    }
+  },
+  "sequences": {
+    "truck-side": {
+      "frames": 1,
+      "resolution": [1920, 1080],
+      "variants": ["yellow", "black"],
+      "description": "Camion de côté, roues masquées (wheel rendue à part), conteneur LST chargé."
+    },
+    "truck-rotate": {
+      "frames": 60,
+      "resolution": [1920, 1080],
+      "variants": ["yellow", "black"],
+      "description": "Caméra orthographique : vue de côté (frame 0 = truck-side) → vue du dessus (dernière frame = truck-top)."
+    },
+    "truck-top": {
+      "frames": 1,
+      "resolution": [1920, 1080],
+      "variants": ["yellow", "black"],
+      "description": "Vue du dessus statique, même cadrage que la dernière frame de truck-rotate."
+    },
+    "reachstacker-load": {
+      "frames": 72,
+      "resolution": [1920, 1080],
+      "variants": ["yellow", "black"],
+      "description": "La grue (reachstacker) soulève un conteneur LST et le pose sur la remorque."
+    },
+    "ship-top": {
+      "frames": 1,
+      "resolution": [2400, 600],
+      "description": "Porte-conteneurs vu du dessus, proue vers la droite, conteneurs jaune / blanc / anthracite."
+    },
+    "plane-top": {
+      "frames": 1,
+      "resolution": [1600, 1600],
+      "desktopWidth": 1200,
+      "mobileWidth": 640,
+      "description": "Avion cargo vu du dessus, nez vers la droite."
+    },
+    "wheel": {
+      "frames": 1,
+      "resolution": [256, 256],
+      "desktopWidth": 256,
+      "mobileWidth": 128,
+      "description": "Roue du camion vue de côté, centrée, fond transparent (tourne en CSS)."
+    }
+  }
+}

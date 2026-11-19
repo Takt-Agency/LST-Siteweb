@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "assets:placeholders": "node scripts/make-placeholders.mjs",
+    "assets:render": "blender -b -P scripts/blender/render_sequences.py --",
+    "assets:encode": "node scripts/encode-frames.mjs --strict"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^7.3.1",
