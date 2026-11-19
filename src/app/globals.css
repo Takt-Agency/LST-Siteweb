@@ -176,7 +176,6 @@ html{scroll-padding-top:env(safe-area-inset-top,0px)}
 @media (max-width:820px){ #scrim{background:linear-gradient(0deg,rgba(4,24,42,.92) 0%,rgba(4,24,42,.6) 32%,rgba(4,24,42,0) 55%)} }
 
 .panel{position:absolute;z-index:10;left:clamp(24px,5vw,72px);top:50%;width:min(400px,calc(100% - 48px));transform:translateY(-50%);opacity:0;pointer-events:none}
-#hero{width:min(560px,calc(100% - 48px))}
 .panel .step{display:flex;align-items:center;gap:10px;color:var(--yellow);font-weight:500;font-size:.9rem}
 .panel .step i{display:inline-block;width:28px;height:2px;background:var(--yellow)}
 .panel h2{margin:10px 0 12px;font-weight:500;font-size:clamp(1.6rem,3vw,2.3rem);line-height:1.12;letter-spacing:-.005em}
@@ -184,9 +183,7 @@ html{scroll-padding-top:env(safe-area-inset-top,0px)}
 .panel ul{list-style:none;margin:20px 0 0;padding:16px 0 0;border-top:1px solid rgba(242,243,245,.12);display:grid;gap:8px;font-size:.95rem}
 .panel li{display:flex;gap:10px;align-items:baseline}
 .panel li::before{content:"";flex:0 0 6px;height:6px;background:var(--yellow);transform:translateY(-2px) skewX(-20deg)}
-#hero h1{margin:0;font-weight:800;font-style:italic;font-size:clamp(2.4rem,4.6vw,3.9rem);line-height:1;max-width:15ch}
-#hero p{margin-top:16px;font-size:1.1rem}
-#hero .acts,#end .acts{margin-top:26px;display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+#end .acts{margin-top:26px;display:flex;gap:18px;align-items:center;flex-wrap:wrap}
 .link{color:var(--ink);text-decoration:none;border-bottom:1px solid rgba(242,243,245,.4);padding-bottom:1px;font-size:.95rem}
 .link:hover{border-color:var(--yellow)}
 #end h2{font-size:clamp(1.9rem,3.6vw,2.8rem)}
@@ -195,7 +192,6 @@ html{scroll-padding-top:env(safe-area-inset-top,0px)}
   .panel h2{font-size:1.45rem;margin:6px 0 8px}
   .panel p{font-size:.95rem}
   .panel ul{display:none}
-  #hero h1{font-size:2.3rem}
 }
 
 .hud{position:absolute;z-index:10;right:clamp(20px,4vw,48px);bottom:calc(28px + env(safe-area-inset-bottom,0px));display:flex;gap:4px;align-items:flex-end}
@@ -335,7 +331,6 @@ html{scroll-padding-top:env(safe-area-inset-top,0px)}
 @media (max-width:560px){ .brand .logo{height:28px} }
 
 .home,.bar,.foot{font-weight:400;font-feature-settings:"cv11","ss01"}
-#hero h1{letter-spacing:-.03em;line-height:1.02}
 .sec h2.big,.panel h2,.end h2{letter-spacing:-.025em}
 .band .tr{letter-spacing:-.02em}
 .intro,.panel p{font-weight:400}

@@ -207,15 +207,6 @@ export function Journey() {
         <div id="scrim" />
 
         <div className="frame">
-          <div className="panel" id="hero">
-            <h1>Connecter les marchés, optimiser vos opérations.</h1>
-            <p>Transport, logistique et consulting pour les entreprises, en Afrique et à l’international.</p>
-            <div className="acts">
-              <Link className="btn" href="/devis">Demander un devis</Link>
-              <a className="link" href="#services">Découvrir nos solutions</a>
-            </div>
-          </div>
-
           {journeySteps.map((s) => (
             <div key={s.step} className="panel" data-a={s.a} data-b={s.b}>
               <div className="step"><i />{s.step}</div>
@@ -244,10 +235,6 @@ export function Journey() {
                 <b><i /></b>
               </div>
             ))}
-          </div>
-          <div id="hint">
-            <span>Faites défiler</span>
-            <i />
           </div>
         </div>
       </div>

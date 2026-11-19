@@ -1,6 +1,7 @@
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { CallButton } from "@/components/layout/CallButton";
+import { Hero } from "@/components/landing/hero/Hero";
 import { Journey } from "@/components/landing/journey/Journey";
 import { Services } from "@/components/landing/services/Services";
 import { ServicesBand } from "@/components/landing/ServicesBand";
@@ -15,6 +16,7 @@ export default function Home() {
     <>
       <Header />
       <main className="home">
+        <Hero />
         <Journey />
         <Services />
         <ServicesBand />

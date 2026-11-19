@@ -71,8 +71,8 @@ export function startJourney(sec: HTMLElement) {
     dot: h.querySelector(".dot") as SVGCircleElement,
   }));
   const panels = $$<HTMLElement>(".panel[data-a]");
-  const hero = $<HTMLElement>("#hero");
-  const hint = $<HTMLElement>("#hint");
+  const hero = sec.querySelector<HTMLElement>("#hero");
+  const hint = sec.querySelector<HTMLElement>("#hint");
   const hud = $$<HTMLElement>(".hud div");
   const hudBars = hud.map((d) => d.querySelector("i") as HTMLElement);
   const cEls = $$<HTMLElement>("#clouds .cl");
@@ -86,7 +86,7 @@ export function startJourney(sec: HTMLElement) {
     mobile = Wd < 820;
     const bar = document.querySelector<HTMLElement>(".bar");
     const top = bar ? bar.getBoundingClientRect().height : 70;
-    freeMid = (top + hero.offsetTop) / 2;
+    freeMid = (top + (hero?.offsetTop ?? Ht * 0.5)) / 2;
   };
 
   function update(p: number, time: number) {
@@ -223,12 +223,14 @@ export function startJourney(sec: HTMLElement) {
 
     /* textes */
     const ho = 1 - sm(s(p, 0.03, 0.07));
+    if (hero) {
     hero.style.opacity = String(ho);
     hero.style.pointerEvents = ho > 0.5 ? "auto" : "none";
     hero.style.transform = mobile
       ? `translateY(${-20 * (1 - ho)}px)`
       : `translateY(calc(-50% + ${-20 * (1 - ho)}px))`;
-    hint.style.opacity = String(1 - s(p, 0, 0.025));
+    }
+    if (hint) hint.style.opacity = String(1 - s(p, 0, 0.025));
     panels.forEach((pn) => {
       const o = win(p, +(pn.dataset.a ?? 0), +(pn.dataset.b ?? 0));
       pn.style.opacity = String(o);
@@ -264,7 +266,7 @@ export function startJourney(sec: HTMLElement) {
   window.addEventListener("resize", onResize);
   /* la hauteur du hero change au chargement des polices : on remesure */
   const ro = new ResizeObserver(onResize);
-  ro.observe(hero);
+  if (hero) ro.observe(hero);
   measure();
   readP();
   cur = target;
