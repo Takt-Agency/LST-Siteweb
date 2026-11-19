@@ -6,8 +6,34 @@
  */
 @theme {
   --font-sans: var(--font-inter), "Helvetica Neue", Helvetica, Arial, sans-serif;
+  /* Grands titres en capitales (Archivo, largeur 125 %, 800) et HUD / labels / compteurs (mono). */
+  --font-display: var(--font-display-face), var(--font-inter), "Arial Black", sans-serif;
+  --font-mono: var(--font-mono-face), ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
 
   --color-brand-yellow: #f8b80b;
+
+  /* Gris neutres (sections claires : fonds, filets, textes secondaires). */
+  --color-fog-50: #f7f8f9;
+  --color-fog-100: #eef0f2;
+  --color-fog-200: #e1e4e8;
+  --color-fog-300: #c9ced4;
+  --color-fog-400: #a4abb4;
+  --color-fog-500: #7d858f;
+  --color-fog-600: #5c636c;
+  --color-fog-700: #41474e;
+  --color-fog-800: #2a2e33;
+  --color-fog-900: #1a1d20;
+
+  /* Bleus océan (scène « Mer », hauts-fonds) et nuit (globe, ciel étoilé). */
+  --color-ocean-300: #6fb4e0;
+  --color-ocean-500: #1f6fa8;
+  --color-ocean-700: #12406a;
+  --color-ocean-800: #0b2e4c;
+  --color-ocean-900: #04182a;
+  --color-night-700: #16224a;
+  --color-night-800: #0e1730;
+  --color-night-900: #0a1020;
+  --color-night-950: #05070d;
 
   --color-ink: #161616;
   --color-ink-soft: #2a2a2a;
@@ -76,6 +102,24 @@
     margin-inline: auto;
     padding-inline: var(--g);
   }
+}
+
+/* Typo display : capitales larges (axe wdth d'Archivo). */
+@utility display {
+  font-family: var(--font-display);
+  font-stretch: 125%;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  line-height: 0.92;
+}
+/* Typo mono : HUD, labels, compteurs (chiffres tabulaires). */
+@utility mono {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 /* Dotted "map" texture used behind the hero */
@@ -314,3 +358,8 @@ html{scroll-padding-top:env(safe-area-inset-top,0px)}
   .mnav a:last-child{border-bottom:0}
 }
 @media (max-width:420px){ .bar .btn{padding:8px 12px;font-size:.85rem} }
+
+/* ---------- composants de défilement (src/components/scroll) ---------- */
+.speed-hud{display:inline-flex;align-items:baseline;gap:8px;color:var(--ink);line-height:1;letter-spacing:0}
+.speed-hud-v{font-size:clamp(2.6rem,5vw,4.2rem);min-width:2ch}
+.speed-hud-u{font-size:.8rem;letter-spacing:.08em;color:var(--muted)}
