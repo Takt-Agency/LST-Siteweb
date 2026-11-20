@@ -3,7 +3,7 @@ export const hero = {
   title: "Connecter les marchés, optimiser vos opérations.",
   text: "Transport, logistique et consulting pour les entreprises, en Afrique et à l’international.",
   primary: { label: "Demander un devis", href: "/devis" },
-  secondary: { label: "Découvrir nos solutions", href: "#services" },
+  secondary: { label: "Découvrir nos solutions", href: "/services" },
   hint: "Faites défiler",
 } as const;
 

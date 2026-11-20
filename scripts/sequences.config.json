@@ -60,6 +60,16 @@
       "variants": ["yellow", "black"],
       "description": "Vue du dessus statique, même cadrage que la dernière frame de truck-rotate."
     },
+    "truck-top-empty": {
+      "frames": 1,
+      "resolution": [1920, 1080],
+      "description": "Vue du dessus du camion sans conteneur (châssis visible), même cadrage que truck-top. Embarquement."
+    },
+    "container-top": {
+      "frames": 1,
+      "resolution": [1920, 1080],
+      "description": "Conteneur LST seul vu du dessus, à sa place dans le cadrage de truck-top. Embarquement."
+    },
     "reachstacker-load": {
       "frames": 72,
       "resolution": [1920, 1080],

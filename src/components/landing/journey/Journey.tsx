@@ -20,7 +20,7 @@ import { SeqImage } from "@/components/scroll/SeqImage";
 import type { IconName } from "@/types";
 import type { OceanState } from "./Ocean";
 import { useJourneyTimeline } from "./timeline";
-import { SCENES, TOTAL } from "./scenes";
+import { AIR_FADE, SCENES, TOTAL } from "./scenes";
 import "./journey.css";
 
 const Ocean = dynamic(() => import("./Ocean"), { ssr: false });
@@ -43,6 +43,9 @@ const SEQ = {
   load: truckSequence("reachstacker-load"),
   plane: sequence("plane-top"),
   ship: sequence("ship-top"),
+  /** Embarquement : camion sans conteneur, et conteneur seul (même cadrage que truck-top). */
+  topEmpty: sequence("truck-top-empty"),
+  box: sequence("container-top"),
 };
 
 /** Nuages de la scène « Air » : [x %, y %, taille vw, image], en trois plans de profondeur. */
@@ -74,7 +77,7 @@ export function Journey() {
     load: { current: 0 },
     rotate: { current: 0 },
     distance: { current: 0 },
-    ocean: { current: { zoom: 1.35, shipX: 0.5, shipY: 0.52, shipLen: 0.5, shipBeam: 0.16, speed: 0.03 } },
+    ocean: { current: { zoom: 1.35, shipX: 0.5, shipY: 0.52, shipLen: 0.5, shipBeam: 0.16, speed: 0.03, wake: 1 } },
   }));
   // Chargement des scènes lourdes armé à l'approche, dans l'ordre du parcours.
   const [armed, setArmed] = useState(0);
@@ -86,7 +89,7 @@ export function Journey() {
       ref={root}
       className="journey"
       data-mode={mode}
-      style={{ "--total": TOTAL } as CSSProperties}
+      style={{ "--total": TOTAL, "--fade": AIR_FADE } as CSSProperties}
       aria-label="Le parcours d’un envoi LST Express : par avion, puis par la route, puis par la mer"
     >
       {/* Ancres placées à la position de défilement de leur scène. */}
@@ -126,7 +129,7 @@ export function Journey() {
             </div>
           </div>
           <div className="j-frame">
-            <StepPanel step={journeySteps[0]} className="j-p-air on-light" data={at(SCENES.air[0] + 0.6)} />
+            <StepPanel step={journeySteps[0]} className="j-p-air j-p-card on-dark" data={at(SCENES.air[0] + 0.6)} />
           </div>
         </div>
 
@@ -274,10 +277,12 @@ export function Journey() {
           <div className="j-vis" aria-hidden="true">
             <div className="j-ocean">{armed >= 3 && <Ocean state={live.ocean} active={mode === "live"} />}</div>
             <SeqImage seq={SEQ.ship} className="j-ship" />
+            {/* Conteneur LST posé dans son emplacement sur le pont (suit le navire). */}
+            <SeqImage seq={SEQ.box} className="j-box j-box-ship" />
           </div>
           <div className="j-frame">
-            <StepPanel step={journeySteps[2]} className="j-p-sea on-dark" data={at(SCENES.sea[0] + 0.5)} />
-            <article className="j-panel j-p-about on-dark" {...at(SCENES.sea[0] + 1.9)}>
+            <StepPanel step={journeySteps[2]} className="j-p-sea on-dark" data={at(SCENES.sea[0] + 2.4)} />
+            <article className="j-panel j-p-about on-dark" {...at(SCENES.sea[0] + 3.8)}>
               <p className="j-step mono">
                 <i aria-hidden="true" />
                 {whyLst.eyebrow}
@@ -291,7 +296,7 @@ export function Journey() {
           </div>
           <ul className="j-reasons">
             {reasons.map((r, i) => (
-              <li key={r.title} className="j-reason on-dark" data-i={i} {...at(SCENES.sea[0] + 2.2)}>
+              <li key={r.title} className="j-reason on-dark" data-i={i} {...at(SCENES.sea[0] + 4.1)}>
                 <FontAwesomeIcon icon={REASON_ICONS[i % REASON_ICONS.length]} aria-hidden className="j-reason-ico" />
                 <h3>{r.title}</h3>
                 <p>{r.text}</p>
@@ -305,7 +310,7 @@ export function Journey() {
           <div className="j-truck-side">
             <SeqImage seq={SEQ.side} />
             {SEQ.side.wheels.map((w, i) => (
-              <RotatingWheel key={i} src={WHEEL_SRC} x={w.x} y={w.y} diameter={w.d} distance={live.distance} />
+              <RotatingWheel key={i} src={w.src ?? WHEEL_SRC} x={w.x} y={w.y} diameter={w.d} distance={live.distance} />
             ))}
           </div>
           <FrameSequence
@@ -316,7 +321,10 @@ export function Journey() {
             load={armed >= 2}
           />
           <SeqImage seq={SEQ.top} className="j-truck-top" />
+          <SeqImage seq={SEQ.topEmpty} className="j-truck-empty" />
         </div>
+        {/* Conteneur soulevé du camion jusqu'au navire (embarquement). */}
+        <SeqImage seq={SEQ.box} className="j-box j-box-lift" />
 
         <SpeedHUD className="j-speed" />
         <div className="hud j-hud" aria-hidden="true">

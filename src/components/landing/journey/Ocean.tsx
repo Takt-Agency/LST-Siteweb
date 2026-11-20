@@ -18,6 +18,8 @@ export type OceanState = {
   shipBeam: number;
   /** Vitesse d'avance (unités de texture par seconde). */
   speed: number;
+  /** Intensité du sillage et de la vague d'étrave (0 = navire à quai, 1 = en route). */
+  wake: number;
 };
 
 /* Normal map répétable (somme de vagues à fréquences entières + bruit lissé), générée une fois. */
@@ -63,7 +65,7 @@ const frag = /* glsl */ `
   precision highp float;
   uniform sampler2D uNormal;
   uniform vec2 uRes; uniform float uTime; uniform float uZoom; uniform vec2 uOffset;
-  uniform vec2 uShip; uniform float uLen; uniform float uBeam;
+  uniform vec2 uShip; uniform float uLen; uniform float uBeam; uniform float uWake;
 
   void main() {
     vec2 p = gl_FragCoord.xy;
@@ -99,12 +101,13 @@ const frag = /* glsl */ `
       foam += smoothstep(uBeam * 0.22, 0.0, arm + brk * uBeam * 0.15) * exp(-along / (uLen * 2.2)) * 0.85;
       float w = uBeam * (0.45 + along / (uLen * 2.5));
       foam += exp(-(lat * lat) / (w * w)) * exp(-along / (uLen * 1.4)) * (0.75 + brk * 0.35);
+      foam *= uWake;
     }
     vec2 e = q / vec2(uLen * 0.5, uBeam * 0.5);
     float hull = length(e);
-    foam += smoothstep(1.32, 1.02, hull + brk * 0.08) * 0.9;
+    foam += smoothstep(1.32, 1.02, hull + brk * 0.08) * (0.25 + 0.65 * uWake);
     float bow = smoothstep(uLen * 0.62, uLen * 0.46, q.x) * smoothstep(uLen * 0.38, uLen * 0.5, q.x);
-    foam += bow * smoothstep(uBeam * 0.9, 0.0, lat) * 0.6;
+    foam += bow * smoothstep(uBeam * 0.9, 0.0, lat) * 0.6 * uWake;
     foam = clamp(foam, 0.0, 1.0);
     col = mix(col, vec3(0.93, 0.96, 0.98), foam * smoothstep(0.15, 0.6, foam + brk * 0.3));
 
@@ -129,6 +132,7 @@ function Water({ state }: { state: { current: OceanState } }) {
           uShip: { value: new THREE.Vector2() },
           uLen: { value: 100 },
           uBeam: { value: 20 },
+          uWake: { value: 1 },
         },
       }),
     [],
@@ -155,6 +159,7 @@ function Water({ state }: { state: { current: OceanState } }) {
     u.uShip.value.set(st.shipX * w, (1 - st.shipY) * h);
     u.uLen.value = st.shipLen * w * 0.96;
     u.uBeam.value = st.shipLen * w * st.shipBeam;
+    u.uWake.value = st.wake;
   });
 
   return (

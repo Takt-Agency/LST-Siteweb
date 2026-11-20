@@ -28,7 +28,7 @@ export function Footer() {
       <div className="wrap">
         <FooterMap />
         <div className="cols">
-          <div>
+          <div className="foot-brand">
             <Link className="brand" href="/" prefetch={false}>
               <Image
                 className="logo-full"

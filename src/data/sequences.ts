@@ -13,7 +13,8 @@ export type SequenceName = keyof Manifest;
 export const TRUCK_LIVERY: "yellow" | "black" = "yellow";
 
 export type Box = { x: number; y: number; w: number; h: number };
-export type Wheel = { x: number; y: number; d: number };
+/** Roue superposée au rendu : centre et diamètre en % du cadre ; `src` = image propre à cette roue (sinon WHEEL_SRC). */
+export type Wheel = { x: number; y: number; d: number; src?: string };
 
 export type Sequence = {
   frames: FrameSet;

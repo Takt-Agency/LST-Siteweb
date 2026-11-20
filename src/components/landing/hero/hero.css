@@ -1,5 +1,6 @@
 /* ---------- Hero : globe + entrée dans l'atmosphère ---------- */
-.hero{position:relative;height:240vh;height:240svh;background:#dfe6ec}
+/* 2,8 écrans : le dernier tiers est recouvert par le fondu de la scène « Air » du parcours (cf. journey.css). */
+.hero{position:relative;height:280vh;height:280svh;background:#dfe6ec}
 .hero-stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;overflow:clip;background:#05070d;
   background-image:radial-gradient(120% 90% at 72% 50%,rgba(248,184,11,.06),transparent 60%)}
 .hero-globe{position:absolute;inset:0;z-index:1}

@@ -4,7 +4,6 @@ import { CallButton } from "@/components/layout/CallButton";
 import { ScrollProgress } from "@/components/layout/ScrollProgress";
 import { Hero } from "@/components/landing/hero/Hero";
 import { Journey } from "@/components/landing/journey/Journey";
-import { Services } from "@/components/landing/services/Services";
 import { ServicesBand } from "@/components/landing/ServicesBand";
 import { Consulting } from "@/components/landing/Consulting";
 import { Faq } from "@/components/landing/Faq";
@@ -20,7 +19,6 @@ export default function Home() {
       <main className="home">
         <Hero />
         <Journey />
-        <Services />
         <ServicesBand />
         <Consulting />
         {/* Masquées tant que src/data/flags.ts ne les active pas (contenus réels requis). */}

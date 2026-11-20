@@ -22,6 +22,11 @@
 .on-light .j-step{color:#7a5800}
 .on-dark{color:#f2f3f5}
 .on-dark > p{color:#a9b3bf}
+/* carte sombre : texte lisible sur un décor chargé (nuages, piste) */
+.j-p-card{padding:26px 28px 24px;border-radius:16px;background:rgba(14,16,18,.84);border:1px solid rgba(242,243,245,.1);
+  box-shadow:0 20px 50px rgba(0,0,0,.35);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.j-p-card ul{border-color:rgba(242,243,245,.14)}
+.j-p-card li{color:#d3d9df}
 .j-intro-title{margin:14px 0 18px!important;font-size:clamp(2.2rem,5.2vw,4.8rem)!important;line-height:.95!important;letter-spacing:-.01em!important;max-width:14ch}
 .j-intro-text{margin:0 0 26px!important;font-size:1.1rem}
 .j-p-intro{width:min(820px,calc(100vw - 2 * var(--g)))}
@@ -67,9 +72,10 @@
 /* ---------- visuels (communs) ---------- */
 .j-s-air .j-vis{background:linear-gradient(#dfe6ec,#cdd9e3)}
 .j-ground{position:absolute;left:50%;top:50%;width:160vw;height:160vh;translate:-50% -50%;
-  background:repeating-linear-gradient(90deg,#4b5848 0 120px,#465344 120px 240px),#4a5647}
+  /* tarmac en béton clair : dalles de 240 px, joints discrets */
+  background:repeating-linear-gradient(90deg,rgba(60,66,74,.09) 0 2px,transparent 2px 240px),repeating-linear-gradient(0deg,rgba(60,66,74,.07) 0 2px,transparent 2px 240px),linear-gradient(90deg,#d9dde1,#d2d7dc 50%,#d9dde1),#d6dadf}
 .j-runway{position:absolute;left:0;right:0;top:50%;height:min(30vh,20vw);translate:0 -50%;background:#2c2f34;
-  border-block:5px solid #dfe2e6;box-shadow:0 0 0 18px #3a3e44,0 0 0 20px #59605a}
+  border-block:5px solid #eef0f2;box-shadow:0 0 0 18px #3a3e44,0 0 0 20px #aab1b9}
 .j-runway-marks{position:absolute;left:0;top:50%;width:420vw;height:8px;margin-top:-4px;
   background:repeating-linear-gradient(90deg,rgba(242,243,245,.85) 0 110px,transparent 110px 220px)}
 .j-air-haze{position:absolute;inset:0;background:radial-gradient(120% 90% at 50% 50%,rgba(236,241,246,.9),#dfe6ec 70%)}
@@ -101,16 +107,20 @@
 /* =====================================================================
  * Mode « live »
  * ===================================================================== */
-.motion-on .journey{--scale:1;height:calc((var(--total) * var(--scale) + 1) * 100svh)}
+/* Le parcours remonte sur la fin du hero (1 écran + le fondu d'entrée --fade, en unités de timeline) :
+   sa scène collante se colle pendant que celle du hero l'est encore, et la scène « Air » y apparaît en fondu
+   (timeline) — pas de bord net qui entre par le bas. Fond transparent tant que ce fondu n'est pas fini. */
+.motion-on .journey{--scale:1;height:calc((var(--total) * var(--scale) + 1) * 100svh);margin-top:calc(-100svh - var(--fade,0) * var(--scale) * 100svh)}
 .motion-on .journey .j-anchor{position:absolute;left:0;top:calc(var(--at) * var(--scale) * 100svh)}
-.motion-on .j-stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;overflow:clip;background:#dfe6ec}
+.motion-on .j-stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;overflow:clip}
 .motion-on .j-scene{position:absolute;inset:0;visibility:hidden;opacity:0}
-.motion-on .j-s-air{visibility:visible;opacity:1}
+
 .motion-on .j-vis{position:absolute;inset:0}
 .motion-on .j-frame{position:absolute;inset:0;max-width:var(--max);margin:0 auto;pointer-events:none}
 .motion-on .j-panel{position:absolute;left:var(--g);top:50%;translate:0 -50%;opacity:0;pointer-events:none}
 .motion-on .j-intro-grid .j-figures{position:absolute;right:var(--g);top:50%;translate:0 -50%;pointer-events:none}
-.motion-on .j-load-seq{position:absolute;right:0;bottom:4vh;width:min(64vw,114vh)}
+/* La scène remplit son cadre (grue au départ à gauche, camion à droite) : le cadre s'arrête au bord du texte (≈ 460 px + marges). */
+.motion-on .j-load-seq{position:absolute;right:0;bottom:4vh;width:max(56vw,min(calc(100vw - var(--g) - 500px),140vh))}
 .motion-on .j-services{position:absolute;inset:0;opacity:0;pointer-events:none}
 .motion-on .j-services > .j-step{position:absolute;right:calc(var(--g) + 52px);top:calc(88px + 2vh)}
 .motion-on .j-track{position:absolute;left:0;top:calc(84px + 7vh);pointer-events:none;will-change:transform}
@@ -130,12 +140,24 @@
 .motion-on .j-reason[data-i="1"]{left:73%;top:15%}
 .motion-on .j-reason[data-i="2"]{left:45%;top:66%}
 .motion-on .j-reason[data-i="3"]{left:73%;top:66%}
-.motion-on .j-truck{position:absolute;left:50%;top:50%;width:min(70vw,124vh);aspect-ratio:16/9;translate:-50% -50%;visibility:hidden;opacity:0;z-index:6;pointer-events:none}
+/* Mode live : le centrage des éléments animés en x/y passe par GSAP (xPercent/yPercent), pas par `translate`. */
+.motion-on .j-plane,.motion-on .j-plane-shadow{translate:none}
+.motion-on .j-truck{position:absolute;left:50%;top:50%;width:min(70vw,124vh);aspect-ratio:16/9;visibility:hidden;opacity:0;z-index:6;pointer-events:none}
 .j-truck .j-truck-side,.j-truck .j-truck-rot,.j-truck .j-truck-top{position:absolute;inset:0}
 .j-truck-rot,.j-truck-top{visibility:hidden;opacity:0}
 .j-truck-top{transform-origin:50% 50%;will-change:transform}
 .j-truck picture{display:block;width:100%;height:100%}
-.motion-on .j-s-sea{z-index:7}
+/* Embarquement : la mer passe au-dessus des autres scènes mais sous le camion (arrêté sur le quai) ;
+   le conteneur quitte la remorque (camion « déchargé »), est porté au-dessus de tout, puis posé sur le navire. */
+.motion-on .j-s-sea{z-index:5}
+.j-truck .j-truck-empty{position:absolute;inset:0;transform-origin:50% 50%;will-change:transform;visibility:hidden}
+.motion-on .j-truck.is-unloaded .j-truck-top{opacity:0!important}
+.motion-on .j-truck.is-unloaded .j-truck-empty{visibility:inherit}
+.j-box{position:absolute;left:0;top:0;width:10px;visibility:hidden;pointer-events:none;will-change:transform}
+.j-box img{width:100%;height:auto}
+.motion-on .j-box.on{visibility:visible}
+.motion-on .j-box-lift{z-index:7}
+html:not(.motion-on) .j-box,html:not(.motion-on) .j-truck-empty{display:none}
 /* voile de lisibilité des textes posés sur la carte et sur l'océan */
 .motion-on .j-s-city .j-vis::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,rgba(14,16,18,.86),rgba(14,16,18,.5) 32%,rgba(14,16,18,0) 50%)}
 .motion-on .j-s-sea .j-vis::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,rgba(3,18,32,.82),rgba(3,18,32,.45) 34%,rgba(3,18,32,0) 52%)}
@@ -184,8 +206,13 @@ html:not(.motion-on) .j-truck,html:not(.motion-on) .j-speed,html:not(.motion-on)
 @media (max-width:767px){
   /* scènes raccourcies : ≈ 13 écrans au total, 3 au plus par scène */
   .motion-on .journey{--scale:.62}
-  .motion-on .j-load-seq{right:-6vw;bottom:auto;top:16vh;width:112vw}
-  .motion-on .j-track{left:var(--g);right:var(--g);top:calc(70px + 8vh);height:min(56vh,420px)}
+  .motion-on .j-load-seq{right:0;bottom:auto;top:16vh;width:100vw}
+  /* Horizon (sol du quai) aligné sur les roues de la séquence : 16vh + 71 % de sa hauteur (100vw × 9/16).
+     Le port flou se pose juste derrière, au lieu de flotter sous le camion. */
+  .motion-on .j-s-load .j-vis{--hz:calc(16vh + 40vw);background:linear-gradient(#e9ecef 0,#e1e5e9 var(--hz),#c9ced4 calc(var(--hz) + 1px),#bfc5cc 100%)}
+  .motion-on .j-port-bg{bottom:auto;top:calc(var(--hz) - 16vw);height:16vw}
+  /* Cartes sous le compteur km/h (haut 80px + 2vh, ≈ 48px de haut) avec un espace de respiration. */
+  .motion-on .j-track{left:var(--g);right:var(--g);top:calc(150px + 2vh);height:min(56vh,420px)}
   .motion-on .j-card{position:absolute;left:0;top:0;width:100%;transform-origin:50% 0}
   .motion-on .j-services > .j-step{top:calc(74px + 2vh);right:var(--g)}
   .motion-on .j-panel{top:auto;bottom:calc(20px + env(safe-area-inset-bottom,0px));translate:none;padding:18px;border-radius:14px}

@@ -43,15 +43,18 @@ export function Hero() {
           },
         },
       });
-      tl.to(".hero-copy", { autoAlpha: 0, y: -90, duration: 0.28 }, 0)
+      // Nuit → voile clair, sans palier bleu ciel. Le hero atteint son état final (gris clair uni)
+      // vers 62 % : la fin du défilement sert au fondu enchaîné avec la scène « Air » du parcours,
+      // qui chevauche le hero (cf. .journey et AIR_FADE).
+      tl.to(".hero-copy", { autoAlpha: 0, y: -90, duration: 0.2 }, 0)
         .to(".hero-hint", { autoAlpha: 0, duration: 0.05 }, 0)
-        .fromTo(".hero-stage", { backgroundColor: "#05070d" }, { backgroundColor: "#0b2e4c", duration: 0.35 }, 0)
-        .to(".hero-stage", { backgroundColor: "#4f8fc4", duration: 0.3 }, 0.35)
-        .to(".hero-stage", { backgroundColor: "#dfe6ec", duration: 0.35 }, 0.65)
-        .fromTo(".hero-haze", { opacity: 0 }, { opacity: 1, duration: 0.5 }, 0.5)
-        .to(".hero-globe", { opacity: 0, duration: 0.2 }, 0.8);
+        .fromTo(".hero-stage", { backgroundColor: "#05070d" }, { backgroundColor: "#0b1a2c", duration: 0.3 }, 0)
+        .to(".hero-stage", { backgroundColor: "#dfe6ec", duration: 0.32 }, 0.3)
+        .fromTo(".hero-haze", { opacity: 0 }, { opacity: 1, duration: 0.3 }, 0.3)
+        .to(".hero-globe", { opacity: 0, duration: 0.14 }, 0.48)
+        .to({}, { duration: 0.38 }, 0.62);
       // Mobile : image statique du globe, « plongée » simulée par un zoom vers Nabeul.
-      if (staticGlobe) tl.fromTo(".hero-globe-static", { scale: 1 }, { scale: 3.2, duration: 1, ease: "power1.in" }, 0);
+      if (staticGlobe) tl.fromTo(".hero-globe-static", { scale: 1 }, { scale: 3.2, duration: 0.62, ease: "power1.in" }, 0);
     },
     { scope: root, dependencies: [reduced, staticGlobe] },
   );

@@ -8,6 +8,7 @@
  *
  *   node scripts/make-placeholders.mjs [--only=truck-rotate,ship-top]
  */
+import { existsSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -152,6 +153,158 @@ function drawTruck(model, P, { wheels = true, dx = 0 } = {}) {
 
 const TRUCK_VIEW = { s: 80, cx: 960, cy: 540, zc: 2.0 };
 
+/**
+ * Photo détourée du camion (assets-src/photos/truck-side.png, cf. make-truck-photo.mjs). Si elle existe,
+ * la séquence de chargement l'utilise : la photo est séparée en deux calques, le camion (remorque vide)
+ * et le conteneur porté par la grue. Emprise du conteneur et ligne du sol en pixels de la photo.
+ */
+const TRUCK_PHOTO = join(ROOT, "assets-src/photos/truck-side.png");
+const PHOTO_BOX = { left: 84, right: 1691, top: 142, bottom: 464, rail: 463, ground: 633 };
+
+async function truckPhotoLayers() {
+  if (!existsSync(TRUCK_PHOTO)) return null;
+  const { data, info } = await sharp(TRUCK_PHOTO).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+  const { width, height } = info;
+  const container = Buffer.alloc(data.length);
+  const truck = Buffer.from(data);
+  const B = PHOTO_BOX;
+  for (let y = B.top - 4; y <= B.bottom; y++)
+    for (let x = B.left - 2; x <= B.right + 2; x++) {
+      const i = (y * width + x) * 4;
+      // Sous le rail inférieur, seul le rail (clair) appartient au conteneur : la poutre avant (sombre)
+      // de la remorque passe devant lui.
+      if (y > B.rail && (data[i] + data[i + 1] + data[i + 2]) / 3 < 110) continue;
+      data.copy(container, i, i, i + 4);
+      truck[i + 3] = 0;
+    }
+  const uri = async (buf) =>
+    `data:image/png;base64,${(await sharp(buf, { raw: { width, height, channels: 4 } }).png().toBuffer()).toString("base64")}`;
+  return { width, height, truck: await uri(truck), container: await uri(container) };
+}
+
+/**
+ * Image détourée du reachstacker (assets-src/photos/reachstacker-side.png, vue de côté, flèche vers la droite).
+ * Si elle existe (avec la photo du camion), elle remplace la grue dessinée : elle est découpée en calques
+ * animés séparément. Toutes les mesures sont en pixels de l'image ; à remesurer si l'image change.
+ */
+const RS_PHOTO = join(ROOT, "assets-src/photos/reachstacker-side.png");
+const RS = {
+  ground: 1021, // bas des pneus
+  pivot: [433, 641], // axe de la flèche (chape bleue)
+  hinge: [1312, 150], // accroche du palonnier sous le bout de la flèche
+  eye: [627, 440], // œil du vérin, sur la flèche
+  base: [902, 826], // pied du vérin, sur le châssis (le corps du vérin reste fixe)
+  eyeR: 17, // rayon de l'œil (reste dans le calque de la flèche)
+  rodHalf: 21, // demi-largeur de la tige chromée (marge comprise)
+  collar: 162, // distance œil → haut du corps de vérin
+  upper: (x) => 118 - 0.577 * (x - 1140), // bord supérieur de la flèche
+  lower: (x) => 628 - 0.578 * (x - 480), // bord inférieur
+  post: [348, 382, 626], // mât du gyrophare (x0, x1, bas), devant la flèche
+  spreader: { x0: 1148, x1: 1496, y0: 96, y1: 372, bar: 284, capL: 1197, capR: 1451, tile: [1200, 1339], center: 1324, bottom: 356 },
+  wheels: [
+    { x: 309, y: 925, r: 97 },
+    { x: 1058, y: 925, r: 97 },
+  ],
+};
+
+/** Découpe l'image en calques (PNG plein cadre, en data URI) ; `barLength` = longueur du palonnier déployé. */
+async function reachstackerLayers(barLength) {
+  if (!existsSync(RS_PHOTO)) return null;
+  const { data, info } = await sharp(RS_PHOTO).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+  const { width, height } = info;
+  const px = (x, y) => (y * width + x) * 4;
+  // Points parasites semi-transparents de l'image (loin de tout pixel opaque) : supprimés.
+  const opaque = (x, y) => x >= 0 && y >= 0 && x < width && y < height && data[px(x, y) + 3] > 200;
+  for (let y = 0; y < height; y++)
+    for (let x = 0; x < width; x++) {
+      const i = px(x, y);
+      if (data[i + 3] === 0 || data[i + 3] > 200) continue;
+      let near = false;
+      for (let dy = -3; dy <= 3 && !near; dy++) for (let dx = -3; dx <= 3 && !near; dx++) near = opaque(x + dx, y + dy);
+      if (!near) data[i + 3] = 0;
+    }
+  const [ex, ey] = RS.eye, [bx, by] = RS.base;
+  const axLen = Math.hypot(bx - ex, by - ey), ux = (bx - ex) / axLen, uy = (by - ey) / axLen;
+  const a0 = Math.atan2(RS.hinge[1] - RS.pivot[1], RS.hinge[0] - RS.pivot[0]);
+  const S = RS.spreader;
+
+  const inBoom = (x, y) =>
+    x >= 290 && x <= 1335 + (y - 20) * 0.45 + 3 && y >= RS.upper(x) - 8 && y <= RS.lower(x) + 5 && (x >= 400 || y <= 608 + (x - 292) * 0.6);
+  const isTeal = (i) => data[i + 2] > data[i] + 50 && data[i + 1] > data[i] + 30;
+  const onRod = (x, y) => {
+    const t = (x - ex) * ux + (y - ey) * uy, d = Math.abs((x - ex) * uy - (y - ey) * ux);
+    return d <= RS.rodHalf && t >= 0 && t <= RS.collar && Math.hypot(x - ex, y - ey) > RS.eyeR;
+  };
+  const onPost = (x, y) => x >= RS.post[0] && x <= RS.post[1] && y <= RS.post[2];
+  const inSpreader = (x, y) => x >= S.x0 && x <= S.x1 && y >= S.y0 && y <= S.y1;
+
+  const layer = () => Buffer.alloc(data.length);
+  const boom = layer(), rod = layer(), body = Buffer.from(data), head = layer(), bar = layer();
+  const wheels = RS.wheels.map(() => layer());
+  const holes = [];
+  for (let y = 0; y < height; y++)
+    for (let x = 0; x < width; x++) {
+      const i = px(x, y);
+      if (data[i + 3] === 0) continue;
+      let dst = null;
+      if (onRod(x, y) && !isTeal(i)) {
+        dst = rod;
+        if (inBoom(x, y)) holes.push([x, y]);
+      } else if (inBoom(x, y)) {
+        if (isTeal(i)) continue;
+        if (onPost(x, y)) { holes.push([x, y]); continue; }
+        dst = boom;
+      } else if (inSpreader(x, y)) dst = y >= S.bar ? bar : head;
+      else {
+        const w = RS.wheels.findIndex((wh) => Math.hypot(x - wh.x, y - wh.y) <= wh.r);
+        if (w >= 0 && !isTeal(i)) {
+          data.copy(wheels[w], i, i, i + 4);
+          // Sous le passage de roue, fond sombre : les crampons, en tournant, ne découvrent pas de trou.
+          if (y < RS.wheels[w].y) { body[i] = 18; body[i + 1] = 20; body[i + 2] = 23; body[i + 3] = 255; }
+          else body[i + 3] = 0;
+          continue;
+        }
+      }
+      if (dst) { data.copy(dst, i, i, i + 4); body[i + 3] = 0; }
+    }
+  // Flèche : les pixels cachés (derrière la tige et le mât) sont recopiés plus loin le long de la flèche.
+  for (const [x, y] of holes) {
+    if (y < RS.upper(x) + 2 || y > RS.lower(x) - 2) continue;
+    for (const k of [48, -48, 72, -72]) {
+      const sx = Math.round(x + k * Math.cos(a0)), sy = Math.round(y + k * Math.sin(a0));
+      const j = px(sx, sy);
+      if (inBoom(sx, sy) && !onRod(sx, sy) && !onPost(sx, sy) && !isTeal(j) && data[j + 3] > 200) {
+        data.copy(boom, px(x, y), j, j + 4);
+        break;
+      }
+    }
+  }
+
+  const png = (buf, w = width, h = height) => sharp(buf, { raw: { width: w, height: h, channels: 4 } }).png().toBuffer();
+  const uri = async (buf, w, h) => `data:image/png;base64,${(await png(buf, w, h)).toString("base64")}`;
+
+  // Palonnier déployé à `barLength` : embouts d'origine, partie rayée répétée (motif d'une période entière).
+  const barH = S.y1 - S.bar + 1;
+  const barImg = await sharp(await png(bar)).extract({ left: S.x0, top: S.bar, width: S.x1 - S.x0, height: barH }).png().toBuffer();
+  const piece = (x0, x1) => sharp(barImg).extract({ left: x0 - S.x0, top: 0, width: x1 - x0, height: barH }).png().toBuffer();
+  const capL = await piece(S.x0, S.capL), capR = await piece(S.capR, S.x1), tile = await piece(...S.tile);
+  const total = Math.round(barLength), wL = S.capL - S.x0, wR = S.x1 - S.capR, tw = S.tile[1] - S.tile[0];
+  const parts = [];
+  for (let x = wL; x < total - wR; x += tw) parts.push({ input: tile, left: x, top: 0 });
+  parts.push({ input: capL, left: 0, top: 0 }, { input: capR, left: total - wR, top: 0 });
+  const barLong = await sharp({ create: { width: total, height: barH, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } })
+    .composite(parts)
+    .png()
+    .toBuffer();
+
+  return {
+    width, height, a0,
+    boom: await uri(boom), rod: await uri(rod), body: await uri(body), head: await uri(head),
+    wheels: await Promise.all(wheels.map((w) => uri(w))),
+    bar: { uri: `data:image/png;base64,${barLong.toString("base64")}`, w: total, h: barH, top: S.bar },
+  };
+}
+
 async function truckSequences(variant) {
   const cab = config.liveries[variant].cab;
   const model = truckModel(cab);
@@ -184,7 +337,8 @@ async function truckSequences(variant) {
 
   if (want("reachstacker-load")) {
     const m = config.sequences["reachstacker-load"].frames;
-    const view = { s: 48, cx: 960, cy: 640, zc: 2.0, theta: 0 };
+    // Cadrage serré : la grue au départ (à gauche) et l'avant du camion (à droite) touchent presque les bords.
+    const view = { s: 56, cx: 972, cy: 640, zc: 2.0, theta: 0 };
     const P = { ...projector(view), s: view.s };
     const truckDx = 9;
     // Remorque vide : le conteneur est porté par la grue.
@@ -193,14 +347,92 @@ async function truckSequences(variant) {
     const len = container.x[1] - container.x[0], hgt = container.z[1] - container.z[0];
     const endX = container.x[0] + truckDx; // position finale (sur la remorque)
     const startX = -11.4;
+    // Photo détourée du camion, à l'échelle du modèle : conteneur de la photo = conteneur du modèle
+    // posé sur la remorque, pneus au sol.
+    const layers = await truckPhotoLayers();
+    const photo = layers && (() => {
+      const k = (len * P.s) / (PHOTO_BOX.right - PHOTO_BOX.left);
+      return {
+        ...layers, k, w: layers.width * k, h: layers.height * k,
+        left: P.p(endX, 0, 0)[0] - PHOTO_BOX.left * k,
+        top: P.p(0, 0, 0)[1] - PHOTO_BOX.ground * k,
+      };
+    })();
+    // Reachstacker détouré (si l'image existe) : échelle d'après ses pneus (≈ 1,75 m de diamètre).
+    const km = (1.75 * P.s) / (2 * RS.wheels[0].r);
+    const rs = photo && (await reachstackerLayers((len * P.s) / km));
+    const phases = (t) => ({
+      lift: easeInOut(Math.min(1, Math.max(0, (t - 0.12) / 0.26))),
+      move: easeInOut(Math.min(1, Math.max(0, (t - 0.36) / 0.36))),
+      drop: easeInOut(Math.min(1, Math.max(0, (t - 0.72) / 0.18))),
+      release: easeInOut(Math.min(1, Math.max(0, (t - 0.9) / 0.1))),
+    });
+    /*
+     * Pose du reachstacker : le conteneur suit la trajectoire (prise au sol, levée à Z_HIGH, translation,
+     * dépose sur la remorque) ; on en déduit l'angle de la flèche (longueur fixe, accroche au-dessus du
+     * conteneur) puis la position de la machine. À la libération, le palonnier remonte de 0,5 m et la
+     * machine recule de 1,2 m.
+     */
+    const Z_HIGH = 3.2;
+    const rsPose = (t) => {
+      const { lift, move, drop, release } = phases(t);
+      const cx = startX + (endX - startX) * move;
+      const zc = Z_HIGH * lift - (Z_HIGH - container.z[0]) * drop;
+      const rect = {
+        x: photo.left + PHOTO_BOX.left * photo.k + (cx - endX) * P.s,
+        y: photo.top + PHOTO_BOX.top * photo.k - (zc - container.z[0]) * P.s,
+        w: len * P.s,
+      };
+      const oy = P.p(0, 0, 0)[1] - RS.ground * km;
+      const [pvx, pvy] = RS.pivot, [hx, hy] = RS.hinge;
+      const L = Math.hypot(hx - pvx, hy - pvy);
+      const hingeY = (rect.y - 0.5 * release * P.s - oy) / km - (RS.spreader.bottom - hy);
+      const a = Math.asin(Math.max(-1, Math.min(1, (hingeY - pvy) / L)));
+      const hingeX = pvx + L * Math.cos(a);
+      const ox = rect.x + rect.w / 2 - (RS.spreader.center + hingeX - hx) * km - 1.2 * P.s * release;
+      return { rect, zc, oy, ox, a, hingeX, hingeY };
+    };
+    const ox0 = rs && rsPose(0).ox;
+    const deg = (r) => (r * 180) / Math.PI;
+
     for (let i = 0; i < m; i++) {
       const t = i / (m - 1);
       // Trajectoire : prise (0–0,15), levée (–0,4), translation (–0,72), dépose (–0,9), repli.
-      const lift = easeInOut(Math.min(1, Math.max(0, (t - 0.12) / 0.26)));
-      const move = easeInOut(Math.min(1, Math.max(0, (t - 0.36) / 0.36)));
-      const drop = easeInOut(Math.min(1, Math.max(0, (t - 0.72) / 0.18)));
-      const release = easeInOut(Math.min(1, Math.max(0, (t - 0.9) / 0.1)));
+      const { lift, move, drop, release } = phases(t);
       const cxm = startX + (endX - startX) * move;
+
+      if (rs) {
+        const { rect, zc, oy, ox, a, hingeX, hingeY } = rsPose(t);
+        const [pvx, pvy] = RS.pivot, [ex, ey] = RS.eye, [bx, by] = RS.base;
+        const dA = a - rs.a0, c = Math.cos(dA), s = Math.sin(dA);
+        // Œil du vérin entraîné par la flèche ; la tige pivote autour du pied (fixe) et coulisse dans le corps.
+        const ex2 = pvx + (ex - pvx) * c - (ey - pvy) * s, ey2 = pvy + (ex - pvx) * s + (ey - pvy) * c;
+        const dPhi = Math.atan2(by - ey2, bx - ex2) - Math.atan2(by - ey, bx - ex);
+        const spin = deg((ox - ox0) / km / RS.wheels[0].r);
+        const g = `translate(${f(ox)} ${f(oy)}) scale(${km.toFixed(4)})`;
+        const img = (href, extra = "") => `<image href="${href}" width="${rs.width}" height="${rs.height}"${extra}/>`;
+        const groundY = P.p(0, 0, 0)[1];
+
+        let body = `<ellipse cx="${f(ox + 690 * km)}" cy="${f(groundY)}" rx="${f(520 * km)}" ry="11" fill="#000" opacity=".35" filter="url(#blurS)"/>`;
+        body += `<g transform="${g}">`;
+        body += img(rs.boom, ` transform="rotate(${deg(dA).toFixed(3)} ${pvx} ${pvy})"`);
+        body += img(rs.rod, ` transform="translate(${f(ex2 - ex)} ${f(ey2 - ey)}) rotate(${deg(dPhi).toFixed(3)} ${ex} ${ey})"`);
+        body += img(rs.body);
+        RS.wheels.forEach((wh, w) => (body += img(rs.wheels[w], ` transform="rotate(${spin.toFixed(2)} ${wh.x} ${wh.y})"`)));
+        body += `</g>`;
+
+        // Camion (remorque vide), conteneur, puis le palonnier par-dessus le conteneur.
+        body += drawTruck({ ...empty, boxes: [] }, P, { dx: truckDx, wheels: false });
+        body += `<ellipse cx="${f(rect.x + rect.w / 2)}" cy="${f(groundY)}" rx="${f(rect.w / 2)}" ry="${f(8 + zc * 2)}" fill="#000" opacity="${f(0.3 - Math.min(0.2, zc * 0.03))}" filter="url(#blurS)"/>`;
+        body += `<image href="${photo.truck}" x="${f(photo.left)}" y="${f(photo.top)}" width="${f(photo.w)}" height="${f(photo.h)}"/>`;
+        body += `<image href="${photo.container}" x="${f(rect.x - PHOTO_BOX.left * photo.k)}" y="${f(rect.y - PHOTO_BOX.top * photo.k)}" width="${f(photo.w)}" height="${f(photo.h)}"/>`;
+        body += `<g transform="${g}"><g transform="translate(${f(hingeX - RS.hinge[0])} ${f(hingeY - RS.hinge[1])})">`;
+        body += img(rs.head);
+        body += `<image href="${rs.bar.uri}" x="${f(RS.spreader.center - rs.bar.w / 2)}" y="${rs.bar.top}" width="${rs.bar.w}" height="${rs.bar.h}"/>`;
+        body += `</g></g>`;
+        jobs.push(writeFrame(`reachstacker-load-${variant}`, i, svgDoc(W, H, body)));
+        continue;
+      }
       const z0 = 0 + 5.4 * lift - (5.4 - container.z[0]) * drop;
       const machineDx = (endX - startX) * move - 1.2 * release;
 
@@ -224,13 +456,37 @@ async function truckSequences(variant) {
         body += `<circle cx="${f(x)}" cy="${f(y)}" r="${f(0.9 * P.s)}" fill="#15171a"/><circle cx="${f(x)}" cy="${f(y)}" r="${f(0.45 * P.s)}" fill="#8d949c"/>`;
       }
       const pivot = P.p(mx(-19.8), 0, 3.4);
-      const tip = P.p(cxm + len / 2, 0, z0 + hgt + 0.7 + 0.5 * release);
+      // Photo : rectangle du conteneur à l'écran (sa place sur la remorque + le déplacement du modèle).
+      const rect = photo && {
+        x: photo.left + PHOTO_BOX.left * photo.k + (cxm - endX) * P.s,
+        y: photo.top + PHOTO_BOX.top * photo.k - (z0 - container.z[0]) * P.s,
+        w: (PHOTO_BOX.right - PHOTO_BOX.left) * photo.k,
+      };
+      const tip = rect
+        ? [rect.x + rect.w / 2, rect.y - (0.7 + 0.5 * release) * P.s]
+        : P.p(cxm + len / 2, 0, z0 + hgt + 0.7 + 0.5 * release);
       const ang = Math.atan2(tip[1] - pivot[1], tip[0] - pivot[0]);
       const bw = 0.42 * P.s, nx = -Math.sin(ang) * bw, ny = Math.cos(ang) * bw;
       body += `<polygon points="${pts([[pivot[0] + nx, pivot[1] + ny], [tip[0] + nx * 0.7, tip[1] + ny * 0.7], [tip[0] - nx * 0.7, tip[1] - ny * 0.7], [pivot[0] - nx, pivot[1] - ny]])}" fill="#f8b80b"/>`;
       body += `<polygon points="${pts([[pivot[0] + nx, pivot[1] + ny], [tip[0] + nx * 0.7, tip[1] + ny * 0.7], [tip[0], tip[1]], [pivot[0], pivot[1]]])}" fill="#000" opacity=".12"/>`;
-      const sp = [P.p(cxm + 0.3, 0, z0 + hgt + 0.15 + 0.5 * release), P.p(cxm + len - 0.3, 0, z0 + hgt + 0.15 + 0.5 * release), P.p(cxm + len - 0.3, 0, z0 + hgt + 0.55 + 0.5 * release), P.p(cxm + 0.3, 0, z0 + hgt + 0.55 + 0.5 * release)];
+      const sp = rect
+        ? [0.15, 0.55].flatMap((dz, j) => {
+            const y = rect.y - (dz + 0.5 * release) * P.s, a = rect.x + 0.3 * P.s, b = rect.x + rect.w - 0.3 * P.s;
+            return j ? [[b, y], [a, y]] : [[a, y], [b, y]];
+          })
+        : [P.p(cxm + 0.3, 0, z0 + hgt + 0.15 + 0.5 * release), P.p(cxm + len - 0.3, 0, z0 + hgt + 0.15 + 0.5 * release), P.p(cxm + len - 0.3, 0, z0 + hgt + 0.55 + 0.5 * release), P.p(cxm + 0.3, 0, z0 + hgt + 0.55 + 0.5 * release)];
       body += `<polygon points="${pts(sp)}" fill="#2a2e33"/>`;
+
+      if (photo) {
+        // Camion réel (remorque vide) + ombres de contact du modèle, puis le conteneur de la photo.
+        body += drawTruck({ ...empty, boxes: [] }, P, { dx: truckDx, wheels: false });
+        const shadowY = P.p(0, 0, 0)[1];
+        body += `<ellipse cx="${f(rect.x + rect.w / 2)}" cy="${f(shadowY)}" rx="${f(rect.w / 2)}" ry="${f(8 + z0 * 2)}" fill="#000" opacity="${f(0.3 - Math.min(0.2, z0 * 0.03))}" filter="url(#blurS)"/>`;
+        body += `<image href="${photo.truck}" x="${f(photo.left)}" y="${f(photo.top)}" width="${f(photo.w)}" height="${f(photo.h)}"/>`;
+        body += `<image href="${photo.container}" x="${f(rect.x - PHOTO_BOX.left * photo.k)}" y="${f(rect.y - PHOTO_BOX.top * photo.k)}" width="${f(photo.w)}" height="${f(photo.h)}"/>`;
+        jobs.push(writeFrame(`reachstacker-load-${variant}`, i, svgDoc(W, H, body)));
+        continue;
+      }
 
       body += drawTruck(empty, P, { dx: truckDx });
 
@@ -284,6 +540,8 @@ async function ship() {
   b += `<polygon points="${pts(hull.map(([x, y]) => [cx + (x - cx) * 0.985, cy + (y - cy) * 0.93]))}" fill="#3b4047"/>`;
   const rand = rng(7);
   const palette = config.containerColors;
+  // Emplacement libre (40', deux baies) où le conteneur LST du camion est déposé à l'embarquement.
+  const SLOT = { bays: [-104, -97.4], row: 7 };
   for (let bx = -104; bx < 112; bx += 6.6) {
     const taper = bx > 80 ? Math.max(0, 1 - (bx - 80) / 40) : 1;
     const rows = Math.max(4, Math.round(16 * taper));
@@ -291,6 +549,7 @@ async function ship() {
       if (rand() < 0.05) continue;
       const y = -rows * 1.25 + r * 2.5;
       const col = palette[Math.floor(rand() * palette.length)];
+      if (r === SLOT.row && SLOT.bays.some((v) => Math.abs(v - bx) < 0.01)) continue;
       const [x0, y0] = p(bx, y + 0.1);
       b += `<rect x="${f(x0)}" y="${f(y0)}" width="${f(6.2 * s)}" height="${f(2.3 * s)}" fill="${col}"/>`;
       b += `<rect x="${f(x0)}" y="${f(y0)}" width="${f(6.2 * s)}" height="${f(2.3 * s)}" fill="url(#vol)"/>`;
@@ -303,7 +562,19 @@ async function ship() {
   b += `<rect x="${f(qx + 1.5 * s)}" y="${f(qy + 4 * s)}" width="${f(12 * s)}" height="${f(32 * s)}" rx="3" fill="#d6d9de"/>`;
   const [fx, fy] = p(-140, -4);
   b += `<rect x="${f(fx)}" y="${f(fy)}" width="${f(7 * s)}" height="${f(8 * s)}" rx="6" fill="#f8b80b"/><rect x="${f(fx + 1.5 * s)}" y="${f(fy + 2 * s)}" width="${f(4 * s)}" height="${f(4 * s)}" rx="3" fill="#1c1e21"/>`;
+  // Repères jaunes aux coins de l'emplacement libre.
+  const slotY = -16 * 1.25 + SLOT.row * 2.5 + 0.1;
+  const [sx0, sy0] = p(SLOT.bays[0], slotY), [sx1, sy1] = p(SLOT.bays[1] + 6.2, slotY + 2.3);
+  for (const [x, y, dx, dy] of [[sx0, sy0, 1, 1], [sx1, sy0, -1, 1], [sx0, sy1, 1, -1], [sx1, sy1, -1, -1]])
+    b += `<path d="M${f(x + dx * 9)} ${f(y)}H${f(x)}V${f(y + dy * 7)}" fill="none" stroke="#f8b80b" stroke-width="2.4"/>`;
   await writeFrame("ship-top", 0, svgDoc(W, H, b));
+  // Géométrie lue par le site (fractions de l'image) : poupe, axe de la coque, emplacement libre.
+  const geo = {
+    stern: +((cx - 150 * s) / W).toFixed(5),
+    axis: +(cy / H).toFixed(5),
+    slot: { x: +((sx0 + sx1) / 2 / W).toFixed(5), y: +((sy0 + sy1) / 2 / H).toFixed(5), len: +((sx1 - sx0) / W).toFixed(5) },
+  };
+  await writeFile(join(ROOT, "src/data/ship-slot.json"), JSON.stringify(geo, null, 2) + "\n");
 }
 
 /* ---------- Avion cargo vu du dessus (nez vers la droite) ---------- */

@@ -63,6 +63,53 @@ pour une seule des trois.
 - **Remorque / conteneur** : blanc, avec le monogramme LST (flèche jaune) de `public/brand/lst-monogramme.png`.
 - **Conteneurs du navire** : jaune / blanc / anthracite (`containerColors`).
 
+### Avion : image détourée
+
+`plane-top` vient de `assets-src/photos/plane-top.webp` (vue du dessus, nez vers la droite, fond transparent) :
+`node scripts/make-plane-photo.mjs && node scripts/encode-frames.mjs --only=plane-top`.
+
+### Camion : images détourées
+
+`truck-side-*`, `truck-top-*` et `truck-rotate-*` ne viennent plus de Blender mais de deux images à fond
+transparent, identiques pour les deux livrées : `assets-src/photos/truck-side.png` (côté, cabine à droite)
+et `assets-src/photos/truck-top.png` (dessus).
+
+```bash
+node scripts/make-truck-photo.mjs
+node scripts/encode-frames.mjs --only=truck-side-yellow,truck-side-black,truck-top-yellow,truck-top-black,truck-rotate-yellow,truck-rotate-black
+```
+
+- vue de côté : placée comme l'ancien rendu ; chaque roue est découpée dans la photo
+  (`public/sequences/truck-side-photo/wheel-<n>.webp`, référencées par `src` dans `wheels.json`) et tourne au défilement ;
+- bascule de caméra : « retournement de carte », la vue de côté s'aplatit sur son axe puis la vue du dessus se
+  déplie au même endroit, sans jamais les empiler (sinon on croit voir deux camions superposés) ;
+- pour changer d'images, remesurer les constantes `SIDE` et `TOP` en tête du script (et `PHOTO_BOX` dans
+  `make-placeholders.mjs` pour le chargement).
+
+Le même script produit aussi, pour l'embarquement (fin de la ville → mer), deux vues du dessus au cadrage de
+`truck-top` : `truck-top-empty` (camion sans conteneur, châssis de remorque dessiné) et `container-top` (le
+conteneur seul). Le conteneur est posé dans un emplacement libre du navire : `ship-top` (placeholders) laisse
+deux baies vides, marquées en jaune, et écrit leur position dans `src/data/ship-slot.json`, lue par la timeline.
+
+```bash
+node scripts/encode-frames.mjs --only=truck-top-empty,container-top
+node scripts/make-placeholders.mjs --only=ship-top && node scripts/encode-frames.mjs --only=ship-top
+```
+
+Ne pas relancer `npm run assets:render` ni `assets:placeholders` sur ces séquences : ils écraseraient les images.
+
+La séquence de chargement (`reachstacker-load-*`) utilise aussi cette photo quand elle existe : le script des
+placeholders la sépare en deux calques (camion à remorque vide, conteneur porté par la grue ; emprise du
+conteneur dans `PHOTO_BOX`). La grue vient de `assets-src/photos/reachstacker-side.png` (vue de côté, flèche
+vers la droite, fond transparent), découpée en calques : châssis, flèche (pivote autour de son axe), tige du vérin
+(coulisse dans le corps), palonnier (reste vertical, déployé à la longueur du conteneur) et roues (tournent quand la
+machine roule). Les mesures sont dans `RS`, en tête de `make-placeholders.mjs` ; à remesurer si l'image change.
+Sans cette image, la grue est dessinée. Pour régénérer la séquence seule :
+
+```bash
+node scripts/make-placeholders.mjs --only=reachstacker-load && node scripts/encode-frames.mjs --only=reachstacker-load-yellow,reachstacker-load-black
+```
+
 ## Préparer les modèles (`assets-src/models/`)
 
 Fichiers attendus : `truck.glb`, `reachstacker.glb`, `ship.glb`, `plane.glb`.
