@@ -40,3 +40,12 @@ export const setLenis = (l: Lenis | null) => {
 };
 /** Instance Lenis active, ou `null` (reduced-motion, avant le montage, pages sans défilement doux). */
 export const getLenis = () => lenis;
+
+const noop = () => () => {};
+/** Faux pendant le rendu serveur et l'hydratation, vrai ensuite (les media queries sont alors fiables). */
+export const useHydrated = () =>
+  useSyncExternalStore(
+    noop,
+    () => true,
+    () => false,
+  );

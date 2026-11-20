@@ -9,7 +9,7 @@ import { Archivo, Inter, JetBrains_Mono } from "next/font/google";
  */
 export const inter = Inter({
   subsets: ["latin"],
-  style: ["normal", "italic"],
+  style: ["normal"],
   axes: ["opsz"],
   variable: "--font-inter",
   display: "swap",
@@ -26,6 +26,8 @@ export const mono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-mono-face",
   display: "swap",
+  // Pas critique pour le premier affichage (HUD, labels) : pas de préchargement.
+  preload: false,
 });
 
 export const fontVariables = `${inter.variable} ${display.variable} ${mono.variable}`;

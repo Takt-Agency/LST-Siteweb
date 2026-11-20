@@ -1,6 +1,6 @@
 /* ---------- Hero : globe + entrée dans l'atmosphère ---------- */
 .hero{position:relative;height:240vh;height:240svh;background:#dfe6ec}
-.hero-stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;background:#05070d;
+.hero-stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;overflow:clip;background:#05070d;
   background-image:radial-gradient(120% 90% at 72% 50%,rgba(31,111,168,.22),transparent 60%)}
 .hero-globe{position:absolute;inset:0;z-index:1}
 .globe{position:absolute;inset:0}
@@ -36,3 +36,5 @@
   .hero-stage{position:relative}
   .hero-hint i{animation:none}
 }
+/* Mobile : globe pré-rendu (Nabeul à ~26 % de la hauteur : point de fuite du zoom). */
+.hero-globe-static{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 0;transform-origin:45% 26%}

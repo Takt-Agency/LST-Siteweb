@@ -35,6 +35,9 @@ export function Providers({ children }: { children: ReactNode }) {
       setLenis(null);
     };
     const onChange = () => {
+      // Classe posée par le script inline du layout : tenue à jour si la préférence change.
+      document.documentElement.classList.toggle("motion-on", !mq.matches);
+      document.documentElement.classList.toggle("motion-off", mq.matches);
       if (mq.matches) stop();
       else start();
       ScrollTrigger.refresh();

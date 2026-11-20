@@ -24,9 +24,18 @@ export const viewport: Viewport = {
   themeColor: "#0e1012",
 };
 
+const MOTION_SCRIPT =
+  "try{document.documentElement.classList.add(matchMedia('(prefers-reduced-motion: reduce)').matches?'motion-off':'motion-on')}catch(e){}";
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="fr" className={`${fontVariables} antialiased`}>
+    // suppressHydrationWarning : le script ci-dessous ajoute une classe à <html> avant l'hydratation.
+    <html lang="fr" className={`${fontVariables} antialiased`} suppressHydrationWarning>
+      <head>
+        {/* Mode d'animation choisi avant la première peinture (pas de relayout à l'hydratation) :
+            « motion-on » = scènes animées ; sans JavaScript ou en reduced-motion → version statique. */}
+        <script dangerouslySetInnerHTML={{ __html: MOTION_SCRIPT }} />
+      </head>
       {/* Des extensions (ex. ColorZilla) ajoutent des attributs à <body> avant l'hydratation. */}
       <body suppressHydrationWarning>
         <noscript>

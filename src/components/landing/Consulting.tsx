@@ -12,7 +12,8 @@ export function Consulting() {
           <div>
             <span className="badge">Notre offre phare</span>
             <div className="kick"><i />Consulting</div>
-            <RevealText as="h2" className="big" id="cs-t" start="top 80%" end="bottom 50%">
+            {/* Départ à 40 % : contraste AA (texte large) dès l'état atténué. */}
+            <RevealText as="h2" className="big" id="cs-t" start="top 80%" end="bottom 50%" from={0.4}>
               L’expertise qui fait la différence : analyser, conseiller, optimiser.
             </RevealText>
             <p className="intro">

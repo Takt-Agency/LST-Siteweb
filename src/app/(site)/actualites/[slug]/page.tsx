@@ -72,7 +72,7 @@ async function ArticleContent({ params }: { params: PageProps<"/actualites/[slug
             <nav aria-label="Fil d'Ariane">
               <ol className="flex flex-wrap items-center gap-2 text-sm text-muted">
                 <li>
-                  <Link href="/" className="hover:text-ink">
+                  <Link href="/" prefetch={false} className="hover:text-ink">
                     Accueil
                   </Link>
                 </li>

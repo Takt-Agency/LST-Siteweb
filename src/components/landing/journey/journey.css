@@ -1,7 +1,7 @@
 /* =====================================================================
- * Parcours réaliste (#journey). Deux modes (data-mode) :
- *  - live   : scène collante (sticky) de (--total + 1) écrans, pilotée par la timeline GSAP ;
- *  - static : sans JavaScript ou en reduced-motion — scènes empilées, images fixes.
+ * Parcours réaliste (#journey). Deux modes, choisis avant la 1re peinture (classe sur <html>, cf. layout) :
+ *  - .motion-on : scène collante (sticky) de (--total + 1) écrans, pilotée par la timeline GSAP ;
+ *  - sinon     : sans JavaScript ou en reduced-motion — scènes empilées, images fixes.
  * ===================================================================== */
 .journey{position:relative;color:var(--ink)}
 .j-anchor{display:block;width:1px;height:1px;pointer-events:none}
@@ -101,93 +101,105 @@
 /* =====================================================================
  * Mode « live »
  * ===================================================================== */
-.journey[data-mode="live"]{height:calc((var(--total) + 1) * 100svh)}
-.journey[data-mode="live"] .j-anchor{position:absolute;left:0;top:calc(var(--at) * 100svh)}
-[data-mode="live"] .j-stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;background:#dfe6ec}
-[data-mode="live"] .j-scene{position:absolute;inset:0;visibility:hidden;opacity:0}
-[data-mode="live"] .j-s-air{visibility:visible;opacity:1}
-[data-mode="live"] .j-vis{position:absolute;inset:0}
-[data-mode="live"] .j-frame{position:absolute;inset:0;max-width:var(--max);margin:0 auto;pointer-events:none}
-[data-mode="live"] .j-panel{position:absolute;left:var(--g);top:50%;translate:0 -50%;opacity:0;pointer-events:auto}
-[data-mode="live"] .j-intro-grid .j-figures{position:absolute;right:var(--g);top:50%;translate:0 -50%;pointer-events:auto}
-[data-mode="live"] .j-load-seq{position:absolute;right:0;bottom:4vh;width:min(64vw,114vh)}
-[data-mode="live"] .j-services{position:absolute;inset:0;opacity:0;pointer-events:none}
-[data-mode="live"] .j-services > .j-step{position:absolute;right:calc(var(--g) + 52px);top:calc(88px + 2vh)}
-[data-mode="live"] .j-track{position:absolute;left:0;top:calc(84px + 7vh);pointer-events:auto;will-change:transform}
-[data-mode="live"] .j-ghost{will-change:transform}
-[data-mode="live"] .j-vis .j-map{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
-[data-mode="live"] .j-milestones{position:absolute;inset:0;pointer-events:none}
-[data-mode="live"] .j-milestone{position:absolute;left:0;top:0;opacity:0;will-change:transform,opacity}
-[data-mode="live"] .j-ship{position:absolute;left:0;top:0;width:40vw;will-change:transform}
-[data-mode="live"] .j-reasons{position:absolute;inset:0;pointer-events:none}
-[data-mode="live"] .j-reason{position:absolute;opacity:0;pointer-events:auto}
-[data-mode="live"] .j-reason[data-i="0"]{left:45%;top:15%}
-[data-mode="live"] .j-reason[data-i="1"]{left:73%;top:15%}
-[data-mode="live"] .j-reason[data-i="2"]{left:45%;top:66%}
-[data-mode="live"] .j-reason[data-i="3"]{left:73%;top:66%}
-[data-mode="live"] .j-truck{position:absolute;left:50%;top:50%;width:min(70vw,124vh);aspect-ratio:16/9;translate:-50% -50%;visibility:hidden;opacity:0;z-index:6;pointer-events:none}
+.motion-on .journey{--scale:1;height:calc((var(--total) * var(--scale) + 1) * 100svh)}
+.motion-on .journey .j-anchor{position:absolute;left:0;top:calc(var(--at) * var(--scale) * 100svh)}
+.motion-on .j-stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;overflow:clip;background:#dfe6ec}
+.motion-on .j-scene{position:absolute;inset:0;visibility:hidden;opacity:0}
+.motion-on .j-s-air{visibility:visible;opacity:1}
+.motion-on .j-vis{position:absolute;inset:0}
+.motion-on .j-frame{position:absolute;inset:0;max-width:var(--max);margin:0 auto;pointer-events:none}
+.motion-on .j-panel{position:absolute;left:var(--g);top:50%;translate:0 -50%;opacity:0;pointer-events:none}
+.motion-on .j-intro-grid .j-figures{position:absolute;right:var(--g);top:50%;translate:0 -50%;pointer-events:none}
+.motion-on .j-load-seq{position:absolute;right:0;bottom:4vh;width:min(64vw,114vh)}
+.motion-on .j-services{position:absolute;inset:0;opacity:0;pointer-events:none}
+.motion-on .j-services > .j-step{position:absolute;right:calc(var(--g) + 52px);top:calc(88px + 2vh)}
+.motion-on .j-track{position:absolute;left:0;top:calc(84px + 7vh);pointer-events:none;will-change:transform}
+.motion-on .j-ghost{will-change:transform}
+.motion-on .j-vis .j-map{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
+.motion-on .j-milestones{position:absolute;inset:0;pointer-events:none}
+.motion-on .j-milestone{position:absolute;left:0;top:0;opacity:0;will-change:transform,opacity}
+.motion-on .j-ship{position:absolute;left:0;top:0;width:40vw;will-change:transform}
+.motion-on .j-reasons{position:absolute;inset:0;pointer-events:none}
+.motion-on .j-reason{position:absolute;opacity:0;pointer-events:none}
+/* Accessibilité : seul le décor d'une scène inactive est masqué (visibility) ; ses textes et liens restent
+   lus par les lecteurs d'écran et focalisables (le focus amène le défilement sur la scène, cf. timeline).
+   Les clics ne sont actifs que dans la scène courante (.is-active, posée par la timeline). */
+.motion-on .j-scene :is(.j-frame,.j-services,.j-milestones,.j-reasons){visibility:visible}
+.motion-on .j-scene.is-active :is(.j-panel,.j-track,.j-reason,.j-figures){pointer-events:auto}
+.motion-on .j-reason[data-i="0"]{left:45%;top:15%}
+.motion-on .j-reason[data-i="1"]{left:73%;top:15%}
+.motion-on .j-reason[data-i="2"]{left:45%;top:66%}
+.motion-on .j-reason[data-i="3"]{left:73%;top:66%}
+.motion-on .j-truck{position:absolute;left:50%;top:50%;width:min(70vw,124vh);aspect-ratio:16/9;translate:-50% -50%;visibility:hidden;opacity:0;z-index:6;pointer-events:none}
 .j-truck .j-truck-side,.j-truck .j-truck-rot,.j-truck .j-truck-top{position:absolute;inset:0}
 .j-truck-rot,.j-truck-top{visibility:hidden;opacity:0}
 .j-truck-top{transform-origin:50% 50%;will-change:transform}
 .j-truck picture{display:block;width:100%;height:100%}
-[data-mode="live"] .j-s-sea{z-index:7}
+.motion-on .j-s-sea{z-index:7}
 /* voile de lisibilité des textes posés sur la carte et sur l'océan */
-[data-mode="live"] .j-s-city .j-vis::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,rgba(14,16,18,.86),rgba(14,16,18,.5) 32%,rgba(14,16,18,0) 50%)}
-[data-mode="live"] .j-s-sea .j-vis::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,rgba(3,18,32,.82),rgba(3,18,32,.45) 34%,rgba(3,18,32,0) 52%)}
+.motion-on .j-s-city .j-vis::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,rgba(14,16,18,.86),rgba(14,16,18,.5) 32%,rgba(14,16,18,0) 50%)}
+.motion-on .j-s-sea .j-vis::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,rgba(3,18,32,.82),rgba(3,18,32,.45) 34%,rgba(3,18,32,0) 52%)}
 .j-speed{position:absolute;z-index:11;left:var(--g);top:calc(80px + 2vh);visibility:hidden;opacity:0}
 .j-hud{z-index:11;right:var(--g);padding:12px 14px 10px;border-radius:10px;background:rgba(14,16,18,.62)}
 
 /* =====================================================================
  * Mode « static » (SSR, sans JS, reduced-motion) : scènes empilées
  * ===================================================================== */
-.journey[data-mode="static"]{display:flex;flex-direction:column;background:#0e1012}
-[data-mode="static"] .j-stage{display:contents}
-[data-mode="static"] .j-anchor{order:var(--o)}
-[data-mode="static"] #methode{--o:49}
-[data-mode="static"] #apropos{--o:59}
-[data-mode="static"] .j-s-air{order:10}
-[data-mode="static"] .j-s-intro{order:20}
-[data-mode="static"] .j-s-load{order:30}
-[data-mode="static"] .j-s-side{order:40}
-[data-mode="static"] .j-s-city{order:50}
-[data-mode="static"] .j-s-sea{order:60}
-[data-mode="static"] .j-scene{position:relative;padding:0 0 clamp(48px,7vw,96px)}
-[data-mode="static"] .j-vis{position:relative;height:clamp(240px,46vw,520px)}
-[data-mode="static"] .j-frame{max-width:var(--max);margin:0 auto;padding:0 var(--g)}
-[data-mode="static"] .j-panel{margin-top:clamp(32px,5vw,56px)}
-[data-mode="static"] .j-s-intro .j-frame{padding-top:clamp(48px,7vw,96px)}
-[data-mode="static"] .j-intro-grid{display:grid;gap:40px}
-[data-mode="static"] .j-s-air,[data-mode="static"] .j-s-intro,[data-mode="static"] .j-s-load{background:#eef0f2}
-[data-mode="static"] .j-ground,[data-mode="static"] .j-plane-shadow,[data-mode="static"] .j-cl-near,[data-mode="static"] .j-cl-mid{display:none}
-[data-mode="static"] .j-air-haze{background:radial-gradient(90% 80% at 50% 50%,rgba(255,255,255,.4),transparent)}
-[data-mode="static"] .j-load-seq{position:absolute;left:50%;bottom:0;width:min(100%,900px);translate:-50% 0}
-[data-mode="static"] .j-s-side,[data-mode="static"] .j-s-city,[data-mode="static"] .j-s-sea{background:#15171a}
-[data-mode="static"] .j-s-side .j-vis{height:clamp(180px,26vw,340px)}
-[data-mode="static"] .j-road{top:40%}
-[data-mode="static"] .j-ghost{top:-4%;font-size:clamp(4rem,14vw,12rem)}
-[data-mode="static"] .j-services{max-width:var(--max);margin:0 auto;padding:clamp(32px,5vw,56px) var(--g) 0}
-[data-mode="static"] .j-track{flex-wrap:wrap;margin-top:24px}
-[data-mode="static"] .j-vis .j-map{position:absolute;inset:0;width:100%!important;height:100%!important;object-fit:cover;object-position:30% 45%}
-[data-mode="static"] .j-milestones,[data-mode="static"] .j-reasons{max-width:var(--max);margin:32px auto 0;padding:0 var(--g);display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
-[data-mode="static"] .j-milestone,[data-mode="static"] .j-reason{width:auto}
-[data-mode="static"] .j-ship{position:absolute;left:50%;top:50%;width:min(90%,980px);translate:-50% -50%}
+html:not(.motion-on) .journey{display:flex;flex-direction:column;background:#0e1012}
+html:not(.motion-on) .j-stage{display:contents}
+html:not(.motion-on) .j-anchor{order:var(--o)}
+html:not(.motion-on) #methode{--o:49}
+html:not(.motion-on) #apropos{--o:59}
+html:not(.motion-on) .j-s-air{order:10}
+html:not(.motion-on) .j-s-intro{order:20}
+html:not(.motion-on) .j-s-load{order:30}
+html:not(.motion-on) .j-s-side{order:40}
+html:not(.motion-on) .j-s-city{order:50}
+html:not(.motion-on) .j-s-sea{order:60}
+html:not(.motion-on) .j-scene{position:relative;padding:0 0 clamp(48px,7vw,96px)}
+html:not(.motion-on) .j-vis{position:relative;height:clamp(240px,46vw,520px)}
+html:not(.motion-on) .j-frame{max-width:var(--max);margin:0 auto;padding:0 var(--g)}
+html:not(.motion-on) .j-panel{margin-top:clamp(32px,5vw,56px)}
+html:not(.motion-on) .j-s-intro .j-frame{padding-top:clamp(48px,7vw,96px)}
+html:not(.motion-on) .j-intro-grid{display:grid;gap:40px}
+html:not(.motion-on) .j-s-air,html:not(.motion-on) .j-s-intro,html:not(.motion-on) .j-s-load{background:#eef0f2}
+html:not(.motion-on) .j-ground,html:not(.motion-on) .j-plane-shadow,html:not(.motion-on) .j-cl-near,html:not(.motion-on) .j-cl-mid{display:none}
+html:not(.motion-on) .j-air-haze{background:radial-gradient(90% 80% at 50% 50%,rgba(255,255,255,.4),transparent)}
+html:not(.motion-on) .j-load-seq{position:absolute;left:50%;bottom:0;width:min(100%,900px);translate:-50% 0}
+html:not(.motion-on) .j-s-side,html:not(.motion-on) .j-s-city,html:not(.motion-on) .j-s-sea{background:#15171a}
+html:not(.motion-on) .j-s-side .j-vis{height:clamp(180px,26vw,340px)}
+html:not(.motion-on) .j-road{top:40%}
+html:not(.motion-on) .j-ghost{top:-4%;font-size:clamp(4rem,14vw,12rem)}
+html:not(.motion-on) .j-services{max-width:var(--max);margin:0 auto;padding:clamp(32px,5vw,56px) var(--g) 0}
+html:not(.motion-on) .j-track{flex-wrap:wrap;margin-top:24px}
+html:not(.motion-on) .j-vis .j-map{position:absolute;inset:0;width:100%!important;height:100%!important;object-fit:cover;object-position:30% 45%}
+html:not(.motion-on) .j-milestones,html:not(.motion-on) .j-reasons{max-width:var(--max);margin:32px auto 0;padding:0 var(--g);display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+html:not(.motion-on) .j-milestone,html:not(.motion-on) .j-reason{width:auto}
+html:not(.motion-on) .j-ship{position:absolute;left:50%;top:50%;width:min(90%,980px);translate:-50% -50%}
 .j-vis .j-side-static{display:none}
-[data-mode="static"] .j-vis .j-side-static{display:block;position:absolute;left:50%;top:50%;width:min(110%,1200px);translate:-50% -60%}
-[data-mode="static"] .j-truck,[data-mode="static"] .j-speed,[data-mode="static"] .j-hud,[data-mode="static"] .j-ocean-gl{display:none}
+html:not(.motion-on) .j-vis .j-side-static{display:block;position:absolute;left:50%;top:50%;width:min(110%,1200px);translate:-50% -60%}
+html:not(.motion-on) .j-truck,html:not(.motion-on) .j-speed,html:not(.motion-on) .j-hud,html:not(.motion-on) .j-ocean-gl{display:none}
 
 /* ---------- petits écrans (version simplifiée détaillée en phase 6) ---------- */
 @media (max-width:767px){
-  [data-mode="live"] .j-panel{top:auto;bottom:calc(20px + env(safe-area-inset-bottom,0px));translate:none;padding:18px;border-radius:14px}
-  [data-mode="live"] .j-panel.on-light{background:rgba(238,240,242,.9)}
-  [data-mode="live"] .j-panel.on-dark{background:rgba(14,16,18,.86)}
-  .j-panel ul{display:none}
+  /* scènes raccourcies : ≈ 13 écrans au total, 3 au plus par scène */
+  .motion-on .journey{--scale:.62}
+  .motion-on .j-load-seq{right:-6vw;bottom:auto;top:16vh;width:112vw}
+  .motion-on .j-track{left:var(--g);right:var(--g);top:calc(70px + 8vh);height:min(56vh,420px)}
+  .motion-on .j-card{position:absolute;left:0;top:0;width:100%;transform-origin:50% 0}
+  .motion-on .j-services > .j-step{top:calc(74px + 2vh);right:var(--g)}
+  .motion-on .j-panel{top:auto;bottom:calc(20px + env(safe-area-inset-bottom,0px));translate:none;padding:18px;border-radius:14px}
+  .motion-on .j-panel.on-light{background:rgba(238,240,242,.9)}
+  .motion-on .j-panel.on-dark{background:rgba(14,16,18,.86)}
+  /* masqués visuellement seulement (toujours lus par les lecteurs d'écran) */
+  .motion-on .j-panel ul,.motion-on .j-reason p,.motion-on .j-p-about > p{position:absolute!important;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
   .j-hud{display:none}
-  [data-mode="live"] .j-truck{width:96vw}
-  [data-mode="live"] .j-plane,[data-mode="live"] .j-plane-shadow{width:70vw;top:36%}
-  [data-mode="live"] .j-reason{width:44vw;padding:12px}
-  [data-mode="live"] .j-reason p{display:none}
-  [data-mode="live"] .j-reason[data-i="0"],[data-mode="live"] .j-reason[data-i="2"]{left:4%}
-  [data-mode="live"] .j-reason[data-i="1"],[data-mode="live"] .j-reason[data-i="3"]{left:52%}
-  [data-mode="live"] .j-reason[data-i="0"],[data-mode="live"] .j-reason[data-i="1"]{top:12%}
-  [data-mode="live"] .j-reason[data-i="2"],[data-mode="live"] .j-reason[data-i="3"]{top:58%}
+  .motion-on .j-truck{width:96vw}
+  .motion-on .j-plane,.motion-on .j-plane-shadow{width:70vw;top:36%}
+  .motion-on .j-reason{width:44vw;padding:12px}
+  .motion-on .j-reason[data-i="0"],.motion-on .j-reason[data-i="2"]{left:4%}
+  .motion-on .j-reason[data-i="1"],.motion-on .j-reason[data-i="3"]{left:52%}
+  .motion-on .j-reason[data-i="0"],.motion-on .j-reason[data-i="1"]{top:11%}
+  .motion-on .j-reason[data-i="2"],.motion-on .j-reason[data-i="3"]{top:28%}
+  .motion-on .j-reason{min-height:0}
 }

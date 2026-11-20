@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { hero } from "@/data/hero";
 import { gsap, useGSAP } from "@/lib/gsap";
-import { useIsMobile, useReducedMotion } from "@/lib/motion-prefs";
+import { useHydrated, useIsMobile, useReducedMotion } from "@/lib/motion-prefs";
 import "./hero.css";
 
 /** WebGL chargé après l'hydratation, uniquement côté client : le texte reste l'élément LCP. */
@@ -22,6 +22,8 @@ export function Hero() {
   const [progress] = useState(() => ({ current: 0 }));
   const reduced = useReducedMotion();
   const mobile = useIsMobile();
+  // Le WebGL (et three.js) n'est chargé qu'après hydratation, et jamais sur mobile.
+  const hydrated = useHydrated();
 
   useGSAP(
     () => {
@@ -45,15 +47,23 @@ export function Hero() {
         .to(".hero-stage", { backgroundColor: "#dfe6ec", duration: 0.35 }, 0.65)
         .fromTo(".hero-haze", { opacity: 0 }, { opacity: 1, duration: 0.5 }, 0.5)
         .to(".hero-globe", { opacity: 0, duration: 0.2 }, 0.8);
+      // Mobile : image statique du globe, « plongée » simulée par un zoom vers Nabeul.
+      if (mobile) tl.fromTo(".hero-globe-static", { scale: 1 }, { scale: 3.2, duration: 1, ease: "power1.in" }, 0);
     },
-    { scope: root, dependencies: [reduced] },
+    { scope: root, dependencies: [reduced, mobile] },
   );
 
   return (
     <section id="hero" ref={root} className="hero" aria-labelledby="hero-t">
       <div className="hero-stage">
         <div className="hero-globe">
-          <Globe progress={progress} reduced={reduced} mobile={mobile} />
+          {mobile ? (
+            // Mobile : pas de WebGL au chargement (performances) — rendu du globe pré-calculé.
+            // eslint-disable-next-line @next/next/no-img-element -- image décorative déjà optimisée (WebP 41 Ko)
+            <img className="hero-globe-static" src="/images/hero-globe-mobile.webp" alt="" aria-hidden="true" decoding="async" />
+          ) : (
+            hydrated && <Globe progress={progress} reduced={reduced} mobile={mobile} />
+          )}
         </div>
         <div className="hero-haze" aria-hidden="true" />
         <div className="hero-frame">

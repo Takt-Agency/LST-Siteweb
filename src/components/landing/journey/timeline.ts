@@ -2,9 +2,9 @@
 /* eslint-disable react-hooks/immutability -- l'état d'animation partagé (progressions, océan) est muté
    impérativement par la timeline GSAP à chaque image, hors du cycle de rendu React (comme un ref). */
 
-import { useEffect, type Dispatch, type RefObject, type SetStateAction } from "react";
+import { useEffect, useState, type Dispatch, type RefObject, type SetStateAction } from "react";
 import { gsap, MotionPathPlugin, ScrollTrigger, useGSAP } from "@/lib/gsap";
-import { getLenis, useReducedMotion } from "@/lib/motion-prefs";
+import { getLenis, useIsMobile, useReducedMotion } from "@/lib/motion-prefs";
 import { sequence, truckSequence } from "@/data/sequences";
 import route from "@/data/city-route.json";
 import { SCENES as S, TOTAL, type JourneyMode } from "./scenes";
@@ -29,12 +29,24 @@ export function useJourneyTimeline(
   setArmed: Dispatch<SetStateAction<number>>,
 ): JourneyMode {
   const reduced = useReducedMotion();
+  // Mobile (< 768 px) : services en pile, jalons fixes ; la timeline est reconstruite au changement.
+  const mobile = useIsMobile();
   const mode: JourneyMode = reduced ? "static" : "live";
+  // La timeline (mesures de layout, ScrollTrigger) n'est construite qu'à l'approche du parcours :
+  // rien à faire pendant le chargement de la page, quand seul le hero est visible.
+  const [near, setNear] = useState(false);
+  useEffect(() => {
+    const el = root.current;
+    if (!el || mode !== "live" || near) return;
+    const io = new IntersectionObserver(([e]) => e.isIntersecting && setNear(true), { rootMargin: "120% 0px" });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [root, mode, near]);
 
   useGSAP(
     () => {
       const el = root.current;
-      if (!el || mode !== "live") return;
+      if (!el || mode !== "live" || !near) return;
       const q = gsap.utils.selector(el);
       const one = <T extends HTMLElement>(sel: string) => q(sel)[0] as T;
 
@@ -46,7 +58,17 @@ export function useJourneyTimeline(
       const track = one(".j-track");
       const ship = one(".j-ship");
       const milestones = q(".j-milestone") as HTMLElement[];
+      const cards = q(".j-card") as HTMLElement[];
       const hud = q(".j-hud > div") as HTMLElement[];
+      // Scène courante (clics actifs) : [sélecteur, début, fin] en unités de la timeline.
+      const sceneEls: [HTMLElement, number, number][] = [
+        [one(".j-s-air"), S.air[0], S.air[1]],
+        [one(".j-s-intro"), S.intro[0], S.intro[1]],
+        [one(".j-s-load"), S.load[0], S.load[1]],
+        [one(".j-s-side"), S.side[0], S.rotate[0]],
+        [one(".j-s-city"), S.rotate[1], S.city[1]],
+        [one(".j-s-sea"), S.sea[0], S.sea[1] + 1],
+      ];
       const hudBars = hud.map((d) => d.querySelector("i") as HTMLElement);
 
       const raw = MotionPathPlugin.getRawPath(route.road);
@@ -91,7 +113,9 @@ export function useJourneyTimeline(
         truckTop.style.transform = `rotate(${pos.angle.toFixed(2)}deg) scale(${city.zoom.toFixed(4)})`;
         milestones.forEach((li, i) => {
           const ms = route.milestones[i];
-          const x = cx + (ms.x - pos.x) * s, y = cy + (ms.y - pos.y) * s;
+          // Mobile : le jalon actif s'affiche en haut de l'écran plutôt qu'à côté de la route.
+          const x = mobile ? cx : cx + (ms.x - pos.x) * s;
+          const y = mobile ? m.vh * 0.32 : cy + (ms.y - pos.y) * s;
           const o = clamp01(1 - (Math.abs(city.u - ms.t) - 0.05) / 0.08);
           li.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) translate(-50%, -50%)`;
           li.style.opacity = o.toFixed(3);
@@ -119,6 +143,7 @@ export function useJourneyTimeline(
         // HUD Air / Route / Mer.
         const prog = [clamp01(u / S.intro[0]), clamp01((u - S.load[0]) / (S.sea[0] - S.load[0])), clamp01((u - S.sea[0]) / (S.sea[1] - S.sea[0]))];
         const on = u < S.load[0] ? 0 : u < S.sea[0] ? 1 : 2;
+        sceneEls.forEach(([sc, a, b]) => sc.classList.toggle("is-active", u >= a && u < b));
         hud.forEach((h, i) => {
           hudBars[i].style.transform = `scaleX(${prog[i].toFixed(3)})`;
           h.classList.toggle("on", i === on);
@@ -183,13 +208,24 @@ export function useJourneyTimeline(
         .fromTo(live.distance, { current: 0 }, { current: ROAD_DISTANCE, duration: S.rotate[1] - 0.1 - S.side[0] }, S.side[0])
         .fromTo(".j-ghost", { x: "35vw" }, { x: "-120vw", duration: S.side[1] - S.side[0] }, S.side[0])
         .fromTo(".j-services", { opacity: 0 }, { opacity: 1, duration: 0.3 }, S.side[0] + 0.2)
-        .fromTo(
+        .to(".j-services", { opacity: 0, duration: 0.3 }, S.side[1] - 0.2);
+      if (mobile) {
+        // Cartes en pile : chacune arrive par la droite et recouvre la précédente.
+        const slot = (S.side[1] - S.side[0] - 0.8) / cards.length;
+        cards.forEach((card, i) => {
+          const t = S.side[0] + 0.3 + i * slot;
+          if (i > 0) tl.fromTo(card, { xPercent: 115 }, { xPercent: 0, duration: 0.35, ease: "power2.out" }, t);
+          if (i > 0) tl.to(cards[i - 1], { scale: 0.92, opacity: 0, duration: 0.35 }, t);
+        });
+      } else {
+        tl.fromTo(
           track,
           { x: () => m.vw },
           { x: () => -(track.scrollWidth - m.vw * 0.55), duration: S.side[1] - S.side[0] - 0.6 },
           S.side[0] + 0.4,
-        )
-        .to(".j-services", { opacity: 0, duration: 0.3 }, S.side[1] - 0.2)
+        );
+      }
+      tl
         .fromTo(".j-speed", { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.3 }, S.side[0] + 0.1)
         .to(".j-speed", { autoAlpha: 0, duration: 0.3 }, S.city[1] - 0.4);
 
@@ -225,14 +261,17 @@ export function useJourneyTimeline(
       apply();
       onProgress(tl.scrollTrigger?.progress ?? 0);
     },
-    { scope: root, dependencies: [mode] },
+    { scope: root, dependencies: [mode, mobile, near] },
   );
 
   // Clavier : un élément focalisé dans une scène amène le défilement sur cette scène.
   useEffect(() => {
     const el = root.current;
     if (!el || mode !== "live") return;
+    const stage = el.querySelector<HTMLElement>(".j-stage");
     const onFocus = (e: FocusEvent) => {
+      // Sans overflow: clip, le navigateur fait défiler la scène collante pour montrer l'élément.
+      if (stage) stage.scrollLeft = stage.scrollTop = 0;
       const target = (e.target as HTMLElement).closest<HTMLElement>("[data-at]");
       if (!target) return;
       const top = el.getBoundingClientRect().top + window.scrollY;

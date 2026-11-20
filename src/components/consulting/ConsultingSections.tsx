@@ -54,7 +54,7 @@ export function ConsultingHero({ service }: { service: Service }) {
         <nav aria-label="Fil d'Ariane">
           <ol className="flex items-center gap-2 text-sm text-white/60">
             <li>
-              <Link href="/" className="transition-colors hover:text-white">
+              <Link href="/" prefetch={false} className="transition-colors hover:text-white">
                 Accueil
               </Link>
             </li>

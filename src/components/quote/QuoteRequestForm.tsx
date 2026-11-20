@@ -399,7 +399,7 @@ function Confirmation({ sent }: { sent: Sent }) {
         Démonstration : aucune demande n&apos;a été réellement envoyée ni enregistrée.
       </p>
       <div className="mt-8 flex flex-wrap gap-x-7 gap-y-4">
-        <Link href="/" className="inline-flex h-12 items-center rounded-md bg-ink px-6 font-medium text-white hover:bg-ink-soft">
+        <Link href="/" prefetch={false} className="inline-flex h-12 items-center rounded-md bg-ink px-6 font-medium text-white hover:bg-ink-soft">
           Retour à l&apos;accueil
         </Link>
         <Link href="/services" className="inline-flex h-12 items-center font-medium underline decoration-line decoration-2 underline-offset-[6px] hover:decoration-brand-yellow">
