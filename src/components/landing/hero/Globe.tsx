@@ -60,7 +60,7 @@ const haloFrag = /* glsl */ `
     float i = pow(clamp(-dot(vN, vView) / 0.58, 0.0, 1.0), 2.6);
     gl_FragColor = vec4(uColor, i * uIntensity);
   }`;
-/** Liseré au bord du disque : bleu clair, puis fin filet jaune LST tout au bord. */
+/** Liseré au bord du disque : jaune clair, puis fin filet jaune LST tout au bord. */
 const rimFrag = /* glsl */ `
   uniform vec3 uBlue; uniform vec3 uYellow; uniform float uIntensity;
   varying vec3 vN; varying vec3 vView;
@@ -102,7 +102,15 @@ const starsFrag = /* glsl */ `
 /* ----------------------------------------------------------------------------- scène */
 type LabelRef = { el: HTMLElement | null; pos: THREE.Vector3 };
 
-function Scene({ progress, reduced, mobile, labels }: GlobeProps & { labels: React.RefObject<LabelRef[]> }) {
+type Layout = { fx: number };
+
+function Scene({
+  progress,
+  reduced,
+  mobile,
+  labels,
+  layout,
+}: GlobeProps & { labels: React.RefObject<LabelRef[]>; layout: React.RefObject<Layout> }) {
   const { camera, gl, size, invalidate } = useThree();
   const globe = useRef<THREE.Group>(null);
   const tilt = useRef<THREE.Group>(null);
@@ -159,7 +167,7 @@ function Scene({ progress, reduced, mobile, labels }: GlobeProps & { labels: Rea
         transparent: true,
         depthWrite: false,
         blending: THREE.AdditiveBlending,
-        uniforms: { uColor: { value: new THREE.Color("#2f7fd0") }, uIntensity: { value: 0.6 } },
+        uniforms: { uColor: { value: new THREE.Color("#f8b80b") }, uIntensity: { value: 0.2 } },
       }),
       rim: new THREE.ShaderMaterial({
         vertexShader: glowVert,
@@ -168,9 +176,9 @@ function Scene({ progress, reduced, mobile, labels }: GlobeProps & { labels: Rea
         depthWrite: false,
         blending: THREE.AdditiveBlending,
         uniforms: {
-          uBlue: { value: new THREE.Color("#6fb4e0") },
+          uBlue: { value: new THREE.Color("#ffd77a") },
           uYellow: { value: YELLOW },
-          uIntensity: { value: 1 },
+          uIntensity: { value: 0.5 },
         },
       }),
       stars: new THREE.ShaderMaterial({
@@ -264,21 +272,26 @@ function Scene({ progress, reduced, mobile, labels }: GlobeProps & { labels: Rea
     pt.sy += (pt.y - pt.sy) * Math.min(1, dt * 3);
     tl.rotation.set(pt.sy * 0.08, pt.sx * 0.12, 0);
 
-    // Position et zoom : globe à droite du texte (desktop) ou en bas (mobile), puis plongée vers Nabeul.
+    // Position et zoom : globe centré dans la moitié droite du conteneur de la navbar (desktop)
+    // ou au-dessus du texte (écran étroit), puis plongée vers Nabeul, recentrée à l'écran.
     const wide = size.width / size.height > 1.1;
     const z = smooth(0.0, 1, p);
-    // Globe centré (le texte du hero est centré par-dessus) ; sur écran étroit, remonté au-dessus du texte.
-    tl.position.set(0, wide ? 0 : 0.62 * (1 - z), 0);
     // Globe à 70 % de sa taille initiale (caméra reculée), même plongée finale vers Nabeul.
-    camera.position.set(0, 0, (wide ? 4.85 : 4.4) - (wide ? 3.6 : 3.15) * smooth(0.05, 1, p));
-    camera.lookAt(tl.position.x * 0.4, tl.position.y * 0.4, 0);
+    const dist = (wide ? 4.85 : 4.4) - (wide ? 3.6 : 3.15) * smooth(0.05, 1, p);
+    camera.position.set(0, 0, dist);
+    // Demi-largeur visible dans le plan du globe → décalage en unités 3D pour viser layout.fx de l'écran.
+    const halfW = Math.tan(((camera as THREE.PerspectiveCamera).fov * RAD) / 2) * dist * (size.width / size.height);
+    const x = wide ? (layout.current.fx - 0.5) * 2 * halfW : 0;
+    tl.position.set(x * (1 - z), wide ? 0 : 0.62 * (1 - z), 0);
+    camera.lookAt(0, tl.position.y * 0.4, 0);
 
     // Entrée dans l'atmosphère : étoiles puis points s'effacent, le halo s'intensifie.
     mats.stars.uniforms.uTime.value = t;
     mats.stars.uniforms.uOpacity.value = 1 - smooth(0.05, 0.45, p);
     mats.dots.uniforms.uOpacity.value = 1 - smooth(0.55, 0.9, p);
-    mats.halo.uniforms.uIntensity.value = 0.6 + 0.9 * smooth(0.3, 0.8, p);
-    mats.rim.uniforms.uIntensity.value = 1 - smooth(0.6, 0.95, p);
+    // Halo jaune volontairement discret (0,2), un peu plus présent pendant la plongée.
+    mats.halo.uniforms.uIntensity.value = 0.2 + 0.3 * smooth(0.3, 0.8, p);
+    mats.rim.uniforms.uIntensity.value = 0.5 * (1 - smooth(0.6, 0.95, p));
     if (stars.current) stars.current.rotation.set(pt.sy * 0.02, t * 0.004 + pt.sx * 0.03, 0);
 
     // Marqueurs : taille apparente constante pendant la plongée, puis effacement.
@@ -352,6 +365,23 @@ export default function Globe({ progress, reduced, mobile }: GlobeProps) {
     [],
   );
   const labels = useRef<LabelRef[]>([]);
+  // Centre visé pour le globe (fraction de la largeur de l'écran) : milieu de la moitié droite du
+  // conteneur de la navbar (.hero-frame), pour une composition équilibrée sous la navigation.
+  const layout = useRef<Layout>({ fx: 0.7 });
+  useEffect(() => {
+    const frame = wrap.current?.closest(".hero-stage")?.querySelector<HTMLElement>(".hero-frame");
+    if (!frame) return;
+    const measure = () => {
+      const r = frame.getBoundingClientRect();
+      const cs = getComputedStyle(frame);
+      const left = r.left + parseFloat(cs.paddingLeft), right = r.right - parseFloat(cs.paddingRight);
+      layout.current.fx = (left + 0.75 * (right - left)) / window.innerWidth;
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(frame);
+    return () => ro.disconnect();
+  }, []);
 
   useEffect(() => {
     const el = wrap.current;
@@ -369,7 +399,7 @@ export default function Globe({ progress, reduced, mobile }: GlobeProps) {
         camera={{ position: [0, 0, 4.85], fov: 38, near: 0.05, far: 200 }}
         frameloop={reduced ? "demand" : visible ? "always" : "never"}
       >
-        <Scene progress={progress} reduced={reduced} mobile={mobile} labels={labels} />
+        <Scene progress={progress} reduced={reduced} mobile={mobile} labels={labels} layout={layout} />
       </Canvas>
       <div className="globe-labels">
         {points.map((p, i) => (

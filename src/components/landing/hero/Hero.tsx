@@ -24,6 +24,9 @@ export function Hero() {
   const mobile = useIsMobile();
   // Le WebGL (et three.js) n'est chargé qu'après hydratation, et jamais sur mobile.
   const hydrated = useHydrated();
+  // ?globe-webgl : force le globe WebGL sur mobile (sert à régénérer l'image pré-rendue, cf. docs/assets.md).
+  const forceGL = hydrated && new URLSearchParams(window.location.search).has("globe-webgl");
+  const staticGlobe = mobile && !forceGL;
 
   useGSAP(
     () => {
@@ -48,16 +51,16 @@ export function Hero() {
         .fromTo(".hero-haze", { opacity: 0 }, { opacity: 1, duration: 0.5 }, 0.5)
         .to(".hero-globe", { opacity: 0, duration: 0.2 }, 0.8);
       // Mobile : image statique du globe, « plongée » simulée par un zoom vers Nabeul.
-      if (mobile) tl.fromTo(".hero-globe-static", { scale: 1 }, { scale: 3.2, duration: 1, ease: "power1.in" }, 0);
+      if (staticGlobe) tl.fromTo(".hero-globe-static", { scale: 1 }, { scale: 3.2, duration: 1, ease: "power1.in" }, 0);
     },
-    { scope: root, dependencies: [reduced, mobile] },
+    { scope: root, dependencies: [reduced, staticGlobe] },
   );
 
   return (
     <section id="hero" ref={root} className="hero" aria-labelledby="hero-t">
       <div className="hero-stage">
         <div className="hero-globe">
-          {mobile ? (
+          {staticGlobe ? (
             // Mobile : pas de WebGL au chargement (performances) — rendu du globe pré-calculé.
             // eslint-disable-next-line @next/next/no-img-element -- image décorative déjà optimisée (WebP 41 Ko)
             <img className="hero-globe-static" src="/images/hero-globe-mobile.webp" alt="" aria-hidden="true" decoding="async" />

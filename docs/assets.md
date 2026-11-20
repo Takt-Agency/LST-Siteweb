@@ -115,3 +115,18 @@ Fichiers attendus : `truck.glb`, `reachstacker.glb`, `ship.glb`, `plane.glb`.
 
 Les placeholders actuels (`npm run assets:placeholders`) sont générés par le code du dépôt et
 n'utilisent aucun asset tiers, en dehors du monogramme LST.
+
+## Globe du hero sur mobile (image pré-rendue)
+
+Sur mobile (< 768 px), le hero affiche `public/images/hero-globe-mobile.webp` (780×1688, environ 40 Ko)
+au lieu du globe WebGL, pour ne pas charger three.js au démarrage. Il faut régénérer cette image après
+chaque modification visuelle du globe (couleurs, halo, destinations) :
+
+1. `npm run build && npm run start`
+2. Ouvrir `http://localhost:3000/?globe-webgl` en émulation mobile 390×844, DPR 2, avec
+   `prefers-reduced-motion: reduce` (globe figé, arcs complets).
+3. Masquer le texte du hero et l'en-tête (`.hero-copy`, `.bar`, `.wa`, `.hero-hint`, `.scroll-progress`),
+   puis capturer l'écran.
+4. Convertir la capture en WebP qualité 72 vers `public/images/hero-globe-mobile.webp`.
+
+Le paramètre `?globe-webgl` ne sert qu'à cette capture : il force le globe WebGL sur mobile.
