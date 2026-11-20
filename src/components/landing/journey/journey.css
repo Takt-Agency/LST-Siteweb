@@ -112,7 +112,7 @@
 [data-mode="live"] .j-intro-grid .j-figures{position:absolute;right:var(--g);top:50%;translate:0 -50%;pointer-events:auto}
 [data-mode="live"] .j-load-seq{position:absolute;right:0;bottom:4vh;width:min(64vw,114vh)}
 [data-mode="live"] .j-services{position:absolute;inset:0;opacity:0;pointer-events:none}
-[data-mode="live"] .j-services > .j-step{position:absolute;right:var(--g);top:calc(88px + 2vh)}
+[data-mode="live"] .j-services > .j-step{position:absolute;right:calc(var(--g) + 52px);top:calc(88px + 2vh)}
 [data-mode="live"] .j-track{position:absolute;left:0;top:calc(84px + 7vh);pointer-events:auto;will-change:transform}
 [data-mode="live"] .j-ghost{will-change:transform}
 [data-mode="live"] .j-vis .j-map{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}

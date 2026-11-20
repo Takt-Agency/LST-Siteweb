@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { consultingChain, consultingDomains, quoteHref } from "@/data/landing";
+import { RevealText } from "@/components/scroll/RevealText";
+import { Stagger } from "@/components/motion/Stagger";
 
+/** Consulting (fond sombre) : titre qui se remplit au défilement, démarche 01–04 en apparition décalée. */
 export function Consulting() {
   return (
     <section className="sec dark-sec" id="consulting" aria-labelledby="cs-t">
@@ -9,9 +12,9 @@ export function Consulting() {
           <div>
             <span className="badge">Notre offre phare</span>
             <div className="kick"><i />Consulting</div>
-            <h2 className="big" id="cs-t">
+            <RevealText as="h2" className="big" id="cs-t" start="top 80%" end="bottom 50%">
               L’expertise qui fait la différence : analyser, conseiller, optimiser.
-            </h2>
+            </RevealText>
             <p className="intro">
               Nous analysons votre organisation transport et logistique pour réduire vos coûts et fluidifier vos
               opérations.
@@ -32,7 +35,7 @@ export function Consulting() {
             ))}
           </ul>
         </div>
-        <div className="chain">
+        <Stagger className="chain">
           {consultingChain.map((c, i) => (
             <div key={c.title}>
               <small>{String(i + 1).padStart(2, "0")}</small>
@@ -40,7 +43,7 @@ export function Consulting() {
               <p>{c.text}</p>
             </div>
           ))}
-        </div>
+        </Stagger>
       </div>
     </section>
   );

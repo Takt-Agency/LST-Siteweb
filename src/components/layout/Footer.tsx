@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { contact } from "@/data/landing";
 import { legalNav, site } from "@/data/site";
+import { FooterMap } from "./FooterMap";
 
 const serviceLinks = [
   { label: "Transport terrestre", href: "/services/transport-terrestre" },
@@ -25,6 +26,7 @@ export function Footer() {
   return (
     <footer className="foot">
       <div className="wrap">
+        <FooterMap />
         <div className="cols">
           <div>
             <Link className="brand" href="/">

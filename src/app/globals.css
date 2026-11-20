@@ -233,16 +233,6 @@ html{scroll-padding-top:env(safe-area-inset-top,0px)}
 
 
 /* ---------- faq ---------- */
-.faq{display:grid;grid-template-columns:.8fr 1.2fr;gap:clamp(32px,6vw,96px)}
-.faq details{border-bottom:1px solid rgba(22,22,22,.14)}
-.faq details:first-child{border-top:1px solid rgba(22,22,22,.14)}
-.faq summary{list-style:none;cursor:pointer;padding:22px 40px 22px 0;font-weight:500;font-size:1.12rem;position:relative}
-.faq summary::-webkit-details-marker{display:none}
-.faq summary::after{content:"";position:absolute;right:6px;top:50%;width:14px;height:14px;margin-top:-7px;background:linear-gradient(#161616,#161616) center/14px 2px no-repeat,linear-gradient(#161616,#161616) center/2px 14px no-repeat;transition:transform .2s}
-.faq details[open] summary::after{transform:rotate(45deg)}
-.faq summary:focus-visible{outline:2px solid #F8B80B;outline-offset:2px}
-.faq details p{margin:0 0 22px;color:#4d5057;max-width:60ch}
-@media (max-width:900px){ .faq{grid-template-columns:1fr} }
 
 /* ---------- footer ---------- */
 .foot{background:#0e1012;color:#9a9ea6;padding:72px 24px calc(32px + env(safe-area-inset-bottom,0px));text-align:left;border:0}
@@ -326,3 +316,62 @@ html{scroll-padding-top:env(safe-area-inset-top,0px)}
 
 /* Conteneur de FrameSequence : relatif par défaut, repositionnable par une classe de scène. */
 .frame-seq{position:relative}
+
+
+/* ---------- FAQ numérotée ---------- */
+.faq{display:grid;grid-template-columns:.8fr 1.2fr;gap:clamp(32px,6vw,96px);align-items:start}
+.faq-side{position:sticky;top:110px}
+.faq-more{margin-top:40px;padding:24px;border-radius:14px;background:#fff;border:1px solid rgba(22,22,22,.08)}
+.faq-more h3{margin:0 0 6px;font-weight:600;font-size:1.15rem}
+.faq-more p{margin:0 0 18px;color:#4d5057;font-size:.95rem}
+.faq-more-acts{display:flex;flex-wrap:wrap;align-items:center;gap:14px 18px}
+.faq-phones a{color:#161616;font-weight:500;text-decoration:none}
+.faq-phones a:hover{text-decoration:underline}
+.faq-list{list-style:none;margin:0;padding:0;border-top:1px solid rgba(22,22,22,.14)}
+.faq-list li{border-bottom:1px solid rgba(22,22,22,.14)}
+.faq summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:3.2em 1fr 28px;align-items:baseline;gap:8px;padding:22px 0;font-weight:500;font-size:1.12rem}
+.faq summary::-webkit-details-marker{display:none}
+.faq-n{font-size:.8rem;color:#7a5800;letter-spacing:.04em}
+.faq-ico{position:relative;align-self:center;width:28px;height:28px;border-radius:50%;border:1px solid rgba(22,22,22,.2);transition:background .2s,border-color .2s}
+.faq-ico::before,.faq-ico::after{content:"";position:absolute;left:50%;top:50%;width:11px;height:1.5px;margin:-.75px 0 0 -5.5px;background:#161616;transition:transform .25s}
+.faq-ico::after{transform:rotate(90deg)}
+.faq details[open] .faq-ico{background:#F8B80B;border-color:#F8B80B}
+.faq details[open] .faq-ico::after{transform:rotate(0)}
+.faq summary:hover .faq-ico{border-color:#161616}
+.faq summary:focus-visible{outline:2px solid #F8B80B;outline-offset:2px}
+.faq details p{margin:0 0 24px 3.2em;padding-left:8px;color:#4d5057;max-width:60ch}
+@media (max-width:900px){ .faq{grid-template-columns:1fr} .faq-side{position:static} }
+@media (max-width:520px){ .faq summary{grid-template-columns:2.4em 1fr 28px;font-size:1.02rem} .faq details p{margin-left:0;padding-left:0} }
+
+/* ---------- CTA final : radar ---------- */
+.cta-radar{position:absolute;left:clamp(-120px,8vw,180px);top:50%;width:min(80vw,760px);aspect-ratio:1;translate:0 -50%;pointer-events:none}
+.cta-radar i{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(22,22,22,.26);animation:radar 6s cubic-bezier(.2,.6,.3,1) infinite;opacity:0}
+.cta-radar i:nth-child(2){animation-delay:1.5s}
+.cta-radar i:nth-child(3){animation-delay:3s}
+.cta-radar i:nth-child(4){animation-delay:4.5s}
+.cta-radar b{position:absolute;left:50%;top:50%;width:14px;height:14px;margin:-7px;border-radius:50%;background:#161616;box-shadow:0 0 0 8px rgba(22,22,22,.08)}
+@keyframes radar{0%{transform:scale(.06);opacity:0}12%{opacity:1}100%{transform:scale(1);opacity:0}}
+@media (prefers-reduced-motion:reduce){
+  .cta-radar i{animation:none;opacity:1}
+  .cta-radar i:nth-child(1){transform:scale(.25)}
+  .cta-radar i:nth-child(2){transform:scale(.5)}
+  .cta-radar i:nth-child(3){transform:scale(.75)}
+}
+
+/* ---------- indicateur de progression ---------- */
+.scroll-progress{position:fixed;z-index:45;right:var(--g);top:calc(78px + env(safe-area-inset-top,0px));width:34px;height:34px;pointer-events:none;
+  border-radius:50%;background:rgba(14,16,18,.55)}
+.sp-track{fill:none;stroke:rgba(242,243,245,.18);stroke-width:2.5}
+.sp-arc{fill:none;stroke:var(--yellow);stroke-width:2.5;stroke-linecap:round}
+@media (max-width:767px){ .scroll-progress{top:auto;bottom:calc(88px + env(safe-area-inset-bottom,0px));width:30px;height:30px} }
+
+/* ---------- pied de page : carte du monde en points ---------- */
+.foot-map{position:relative;max-width:min(100%,960px);margin:0 auto 56px}
+.foot-map img{display:block;width:100%;height:auto}
+.foot-pin{position:absolute;width:0;height:0}
+.foot-pin i{position:absolute;left:-5px;top:-5px;width:10px;height:10px;border-radius:50%;background:#F8B80B;box-shadow:0 0 0 0 rgba(248,184,11,.6);animation:pin 2.2s ease-out infinite}
+.foot-pin b{position:absolute;left:14px;top:-.6em;white-space:nowrap;font-size:.72rem;color:#F8B80B;font-weight:500}
+.foot-map img{opacity:.5}
+@keyframes pin{0%{box-shadow:0 0 0 0 rgba(248,184,11,.6)}80%,100%{box-shadow:0 0 0 22px rgba(248,184,11,0)}}
+@media (prefers-reduced-motion:reduce){ .foot-pin i{animation:none} }
+@media (max-width:560px){ .foot-map{margin-bottom:36px} .foot-pin b{font-size:.62rem} }
