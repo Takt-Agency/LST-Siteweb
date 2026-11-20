@@ -30,7 +30,7 @@ const dotsVert = /* glsl */ `
     vec4 mv = modelViewMatrix * vec4(position, 1.0);
     vFacing = normalize(normalMatrix * position).z;
     vHome = smoothstep(0.9965, 0.9992, dot(normalize(position), uHome));
-    gl_PointSize = uSize * uPixelRatio * clamp(3.0 / -mv.z, 0.9, 1.6);
+    gl_PointSize = uSize * uPixelRatio * clamp(3.0 / -mv.z, 0.6, 1.6);
     gl_Position = projectionMatrix * mv;
   }`;
 const dotsFrag = /* glsl */ `
@@ -267,8 +267,9 @@ function Scene({ progress, reduced, mobile, labels }: GlobeProps & { labels: Rea
     // Position et zoom : globe à droite du texte (desktop) ou en bas (mobile), puis plongée vers Nabeul.
     const wide = size.width / size.height > 1.1;
     const z = smooth(0.0, 1, p);
-    tl.position.set(wide ? 0.95 * (1 - z) : 0, wide ? 0 : 0.62 * (1 - z), 0);
-    camera.position.set(0, 0, (wide ? 3.4 : 4.4) - (wide ? 2.15 : 3.15) * smooth(0.05, 1, p));
+    tl.position.set(wide ? 1.36 * (1 - z) : 0, wide ? 0 : 0.62 * (1 - z), 0);
+    // Globe à 70 % de sa taille initiale (caméra reculée), même plongée finale vers Nabeul.
+    camera.position.set(0, 0, (wide ? 4.85 : 4.4) - (wide ? 3.6 : 3.15) * smooth(0.05, 1, p));
     camera.lookAt(tl.position.x * 0.4, tl.position.y * 0.4, 0);
 
     // Entrée dans l'atmosphère : étoiles puis points s'effacent, le halo s'intensifie.
@@ -346,7 +347,7 @@ export default function Globe({ progress, reduced, mobile }: GlobeProps) {
   const wrap = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(true);
   const points = useMemo(
-    () => [NABEUL, ...DESTINATIONS].map((d) => ({ name: d.name, home: d === NABEUL, pos: new THREE.Vector3(...latLonToVec(d.lat, d.lon, 1.01)) })),
+    () => [NABEUL, ...DESTINATIONS].map((d) => ({ name: d.name, home: d === NABEUL, left: !!d.labelLeft, pos: new THREE.Vector3(...latLonToVec(d.lat, d.lon, 1.01)) })),
     [],
   );
   const labels = useRef<LabelRef[]>([]);
@@ -364,7 +365,7 @@ export default function Globe({ progress, reduced, mobile }: GlobeProps) {
       <Canvas
         dpr={mobile ? [1, 1.5] : [1, 2]}
         gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
-        camera={{ position: [0, 0, 3.4], fov: 38, near: 0.05, far: 200 }}
+        camera={{ position: [0, 0, 4.85], fov: 38, near: 0.05, far: 200 }}
         frameloop={reduced ? "demand" : visible ? "always" : "never"}
       >
         <Scene progress={progress} reduced={reduced} mobile={mobile} labels={labels} />
@@ -376,7 +377,7 @@ export default function Globe({ progress, reduced, mobile }: GlobeProps) {
             ref={(el) => {
               labels.current[i] = { el, pos: p.pos };
             }}
-            className={`globe-label mono${p.home ? " is-home" : ""}`}
+            className={`globe-label mono${p.home ? " is-home" : ""}${p.left ? " is-left" : ""}`}
           >
             {p.name}
           </span>

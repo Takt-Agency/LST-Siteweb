@@ -7,7 +7,8 @@ export const hero = {
   hint: "Faites défiler",
 } as const;
 
-export type GeoPoint = { name: string; lat: number; lon: number };
+/** labelLeft : étiquette placée à gauche du point (évite les chevauchements entre villes proches). */
+export type GeoPoint = { name: string; lat: number; lon: number; labelLeft?: boolean };
 
 /** Siège LST Express (Avenue Hédi Nouira, Nabeul). */
 export const NABEUL: GeoPoint = { name: "Nabeul", lat: 36.4561, lon: 10.7376 };
@@ -17,7 +18,7 @@ export const NABEUL: GeoPoint = { name: "Nabeul", lat: 36.4561, lon: 10.7376 };
  * (lignes réellement opérées / marchés prioritaires). Exemples provisoires, sans chiffres associés.
  */
 export const DESTINATIONS: GeoPoint[] = [
-  { name: "Marseille", lat: 43.2965, lon: 5.3698 },
+  { name: "Marseille", lat: 43.2965, lon: 5.3698, labelLeft: true },
   { name: "Gênes", lat: 44.4056, lon: 8.9463 },
   { name: "Paris", lat: 48.8566, lon: 2.3522 },
   { name: "Istanbul", lat: 41.0082, lon: 28.9784 },
