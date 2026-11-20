@@ -1,6 +1,8 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Eyebrow } from "@/components/ui/Eyebrow";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { absUrl } from "@/lib/seo";
 
 export interface Crumb {
   label: string;
@@ -40,6 +42,19 @@ export function PageHeader({
             ))}
           </ol>
         </nav>
+        {/* Fil d'Ariane pour les moteurs de recherche (dernière étape = page courante, sans lien). */}
+        <JsonLd
+          data={{
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: crumbs.map((c, i) => ({
+              "@type": "ListItem",
+              position: i + 1,
+              name: c.label,
+              ...(c.href ? { item: absUrl(c.href) } : {}),
+            })),
+          }}
+        />
         <div className="mt-10 animate-rise lg:mt-14">
           <Eyebrow className="text-muted">{eyebrow}</Eyebrow>
           <h1 className="mt-5 max-w-3xl text-[2.4rem] leading-[1.04] font-semibold tracking-[-0.035em] sm:text-5xl lg:text-6xl">{title}</h1>

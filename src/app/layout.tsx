@@ -15,8 +15,11 @@ export const metadata: Metadata = {
     default: site.name,
     template: `%s | ${site.name}`,
   },
-  description: "Transport, logistique et consulting pour les entreprises, en Afrique et à l’international.",
+  description: site.description,
+  // Image de partage : src/app/opengraph-image.jpg et twitter-image.jpg (conventions de fichiers Next).
   openGraph: { type: "website", locale: "fr_FR", siteName: site.name },
+  twitter: { card: "summary_large_image" },
+  formatDetection: { telephone: false, email: false, address: false },
 };
 
 export const viewport: Viewport = {

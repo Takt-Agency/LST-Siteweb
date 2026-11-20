@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { serviceCategories, serviceHref, services, servicesPage } from "@/data/services";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/services" },
   title: "Nos services",
   description: servicesPage.intro,
 };

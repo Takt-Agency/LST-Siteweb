@@ -5,6 +5,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
+import { useIsMobile } from "@/lib/motion-prefs";
 
 /** État de la scène, écrit par la timeline du parcours (fractions de l'écran). */
 export type OceanState = {
@@ -173,6 +174,8 @@ function Water({ state }: { state: { current: OceanState } }) {
 export default function Ocean({ state, active }: { state: { current: OceanState }; active: boolean }) {
   const wrap = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
+  // Shader plein écran : densité de pixels 1 sur mobile (≈ 2× moins de pixels à calculer qu'en 1,5).
+  const mobile = useIsMobile();
   useEffect(() => {
     const el = wrap.current;
     if (!el) return;
@@ -183,7 +186,7 @@ export default function Ocean({ state, active }: { state: { current: OceanState 
   return (
     <div ref={wrap} className="j-ocean-gl" aria-hidden="true">
       <Canvas
-        dpr={[1, 1.5]}
+        dpr={mobile ? 1 : [1, 1.5]}
         gl={{ antialias: false, alpha: false, powerPreference: "high-performance" }}
         frameloop={active && visible ? "always" : "never"}
       >

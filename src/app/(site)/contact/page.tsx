@@ -10,6 +10,7 @@ import { Reveal } from "@/components/motion/Reveal";
 import { PhoneLinks } from "@/components/ui/PhoneLinks";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/contact" },
   title: "Contact",
   description: "Contactez LST Express : coordonnées, formulaire de contact et localisation.",
 };

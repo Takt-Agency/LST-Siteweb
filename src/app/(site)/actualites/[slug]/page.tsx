@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: PageProps<"/actualites/[slug]
   const { slug } = await params;
   const article = getArticle(slug);
   if (!site.newsEnabled || !article) return {};
-  return { title: article.title, description: article.excerpt };
+  return { title: article.title, description: article.excerpt, alternates: { canonical: `/actualites/${slug}` } };
 }
 
 function Block({ block }: { block: ArticleBlock }) {

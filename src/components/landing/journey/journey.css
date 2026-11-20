@@ -224,8 +224,10 @@ html:not(.motion-on) .j-truck,html:not(.motion-on) .j-speed,html:not(.motion-on)
   .j-hud{display:none}
   .motion-on .j-truck{width:96vw}
   .motion-on .j-plane,.motion-on .j-plane-shadow{width:70vw;top:36%;left:50%}
-  /* Piste à la hauteur de l'avion (au-dessus de la carte de texte, en bas). */
-  .motion-on .j-runway{top:36%}
+  /* Piste à la hauteur de l'avion (36 % de la scène, au-dessus de la carte de texte). Le sol (.j-ground) est centré
+     sur la scène mais mesure 160vh : on se place donc depuis son centre, en svh comme la scène (barre d'adresse
+     mobile comprise), et pas en % du sol. */
+  .motion-on .j-runway{top:calc(50% - 14vh);top:calc(50% - 14svh)}
   /* Intro : titre à la largeur de l'écran (« INTERLOCUTEUR, » tient sur une ligne), carte centrée verticalement. */
   .motion-on .j-intro-title{font-size:min(7.2vw,2.2rem)!important}
   .motion-on .j-p-intro{top:50%;bottom:auto;translate:0 -50%}

@@ -104,7 +104,9 @@ export function FrameSequence({
     const blobs: (Blob | undefined)[] = new Array(count);
     const cache = new Map<number, ImageBitmap>(); // ordre d'insertion = ordre d'usage (LRU)
     const decoding = new Set<number>();
-    const maxCache = cacheSize ?? (mobile ? 12 : 24);
+    // Une frame 1920×1080 décodée pèse ≈ 8 Mo (960×540 : 2 Mo) : 24 frames × 2 séquences dépassaient 400 Mo.
+    // Le défilement n'a besoin que de la frame visée et de ses 4 voisines (cf. tick).
+    const maxCache = cacheSize ?? (mobile ? 6 : 8);
     const abort = new AbortController();
     let destroyed = false;
     let drawn = -1;

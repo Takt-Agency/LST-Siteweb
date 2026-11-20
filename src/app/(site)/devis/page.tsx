@@ -7,6 +7,7 @@ import { contact } from "@/data/site";
 import { PhoneLinks } from "@/components/ui/PhoneLinks";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/devis" },
   title: "Demande de devis",
   description: quotePage.intro,
 };

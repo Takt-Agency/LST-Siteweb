@@ -81,7 +81,9 @@ export function Journey() {
   }));
   // Chargement des scènes lourdes armé à l'approche, dans l'ordre du parcours.
   const [armed, setArmed] = useState(0);
-  const mode = useJourneyTimeline(root, live, setArmed);
+  // Océan animé seulement pendant la scène « mer » (sinon il tournerait, hors champ, dès son chargement).
+  const [seaOn, setSeaOn] = useState(false);
+  const mode = useJourneyTimeline(root, live, setArmed, setSeaOn);
 
   return (
     <section
@@ -242,6 +244,7 @@ export function Journey() {
               height={route.height}
               alt=""
               decoding="async"
+              loading="lazy"
               fetchPriority="low"
               style={{ width: route.width, height: route.height }}
             />
@@ -275,7 +278,7 @@ export function Journey() {
         {/* ============ 7. LA MER (à propos) ============ */}
         <div className="j-scene j-s-sea">
           <div className="j-vis" aria-hidden="true">
-            <div className="j-ocean">{armed >= 3 && <Ocean state={live.ocean} active={mode === "live"} />}</div>
+            <div className="j-ocean">{armed >= 3 && <Ocean state={live.ocean} active={mode === "live" && seaOn} />}</div>
             <SeqImage seq={SEQ.ship} className="j-ship" />
             {/* Conteneur LST posé dans son emplacement sur le pont (suit le navire). */}
             <SeqImage seq={SEQ.box} className="j-box j-box-ship" />

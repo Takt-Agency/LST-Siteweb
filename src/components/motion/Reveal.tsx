@@ -1,16 +1,10 @@
 "use client";
 
-import { motion } from "motion/react";
-import type { ReactNode } from "react";
+import { createElement, useCallback, type ReactNode } from "react";
 
-const tags = {
-  div: motion.div,
-  li: motion.li,
-  ul: motion.ul,
-  ol: motion.ol,
-  section: motion.section,
-  p: motion.p,
-} as const;
+type Tag = "div" | "li" | "ul" | "ol" | "section" | "p";
+
+const EASE = "cubic-bezier(.2,.7,.2,1)";
 
 /**
  * Fades and slides its content in when it scrolls into view (once).
@@ -18,6 +12,9 @@ const tags = {
  * Do not use on items of a horizontal scroller (off-screen items never intersect):
  * wrap the whole row instead. Below-the-fold only: the server HTML starts hidden until hydration (a <noscript>
  * rule in the root layout shows it when JavaScript is off).
+ *
+ * Implémentation légère (IntersectionObserver + transition CSS) : pas de bibliothèque d'animation dans le bundle.
+ * Styles en ligne, comme auparavant, pour ne pas entrer en conflit avec les classes utilitaires de l'élément.
  */
 export function Reveal({
   as = "div",
@@ -26,23 +23,37 @@ export function Reveal({
   className,
   children,
 }: {
-  as?: keyof typeof tags;
+  as?: Tag;
   delay?: number;
   y?: number;
   className?: string;
   children: ReactNode;
 }) {
-  const Tag = tags[as];
-  return (
-    <Tag
-      data-reveal
-      className={className}
-      initial={{ opacity: 0, y }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.15 }}
-      transition={{ duration: 0.7, delay, ease: [0.2, 0.7, 0.2, 1] }}
-    >
-      {children}
-    </Tag>
+  // Ref de rappel (React 19 : la fonction renvoyée sert de nettoyage au démontage).
+  const reveal = useCallback(
+    (el: HTMLElement | null) => {
+      if (!el) return;
+      // Préférence « réduire les animations » : fondu seul, sans déplacement.
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) el.style.transform = "none";
+      const io = new IntersectionObserver(
+        ([e]) => {
+          if (!e.isIntersecting) return;
+          io.disconnect();
+          el.style.transition = `opacity .7s ${EASE} ${delay}s, transform .7s ${EASE} ${delay}s`;
+          el.style.opacity = "1";
+          el.style.transform = "none";
+        },
+        { threshold: 0.15 },
+      );
+      io.observe(el);
+      return () => io.disconnect();
+    },
+    [delay],
+  );
+
+  return createElement(
+    as,
+    { ref: reveal, "data-reveal": "", className, style: { opacity: 0, transform: `translateY(${y}px)` } },
+    children,
   );
 }

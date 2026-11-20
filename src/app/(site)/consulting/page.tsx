@@ -10,12 +10,14 @@ import {
   ConsultingHero,
 } from "@/components/consulting/ConsultingSections";
 import { getService } from "@/data/services";
+import { metaDescription } from "@/lib/seo";
 
 const consulting = getService("consulting");
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/consulting" },
   title: "Consulting",
-  description: consulting?.promise,
+  description: consulting ? metaDescription(consulting.description) : undefined,
 };
 
 /** Dedicated consulting page (spec §06: distinctive treatment, 4-step approach, "Demander un diagnostic"). */

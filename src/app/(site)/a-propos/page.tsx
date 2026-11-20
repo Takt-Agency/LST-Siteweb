@@ -8,6 +8,7 @@ import { aboutPage as a } from "@/data/about";
 import { Reveal } from "@/components/motion/Reveal";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/a-propos" },
   title: "À propos",
   description: a.intro,
 };

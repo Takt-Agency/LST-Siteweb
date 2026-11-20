@@ -43,6 +43,7 @@ export function useJourneyTimeline(
   root: RefObject<HTMLElement | null>,
   live: JourneyLive,
   setArmed: Dispatch<SetStateAction<number>>,
+  setSeaOn: (on: boolean) => void,
 ): JourneyMode {
   const reduced = useReducedMotion();
   // Mobile (< 768 px) : services en pile, jalons fixes ; la timeline est reconstruite au changement.
@@ -241,8 +242,15 @@ export function useJourneyTimeline(
       };
 
       let armedNow = 0;
+      let seaNow = false;
       const onProgress = (p: number) => {
         const u = p * TOTAL;
+        // L'océan WebGL (plein écran) ne tourne que lorsque la scène « mer » est affichée.
+        const seaOn = u >= BOARD[0] - 0.2;
+        if (seaOn !== seaNow) {
+          seaNow = seaOn;
+          setSeaOn(seaOn);
+        }
         // Armer le chargement des séquences un peu avant leur scène.
         const need = u > S.sea[0] - 5 ? 3 : u > S.rotate[0] - 4 ? 2 : u > S.load[0] - 2.5 ? 1 : 0;
         if (need > armedNow) {
