@@ -224,6 +224,13 @@ html:not(.motion-on) .j-truck,html:not(.motion-on) .j-speed,html:not(.motion-on)
   .j-hud{display:none}
   .motion-on .j-truck{width:96vw}
   .motion-on .j-plane,.motion-on .j-plane-shadow{width:70vw;top:36%;left:50%}
+  /* Piste à la hauteur de l'avion (au-dessus de la carte de texte, en bas). */
+  .motion-on .j-runway{top:36%}
+  /* Intro : titre à la largeur de l'écran (« INTERLOCUTEUR, » tient sur une ligne), carte centrée verticalement. */
+  .motion-on .j-intro-title{font-size:min(7.2vw,2.2rem)!important}
+  .motion-on .j-p-intro{top:50%;bottom:auto;translate:0 -50%}
+  /* Cartes de services plus courtes (puces masquées visuellement, toujours lues) : elles s'arrêtent au-dessus du camion. */
+  .motion-on .j-card-points{position:absolute!important;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
   .motion-on .j-reason{width:44vw;padding:12px}
   .motion-on .j-reason[data-i="0"],.motion-on .j-reason[data-i="2"]{left:4%}
   .motion-on .j-reason[data-i="1"],.motion-on .j-reason[data-i="3"]{left:52%}

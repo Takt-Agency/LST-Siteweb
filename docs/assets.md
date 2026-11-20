@@ -68,6 +68,15 @@ pour une seule des trois.
 `plane-top` vient de `assets-src/photos/plane-top.webp` (vue du dessus, nez vers la droite, fond transparent) :
 `node scripts/make-plane-photo.mjs && node scripts/encode-frames.mjs --only=plane-top`.
 
+### Navire : image détourée
+
+`ship-top` vient de `assets-src/photos/ship-top.png` (vue du dessus, proue vers la droite) :
+`node scripts/make-ship-photo.mjs && node scripts/encode-frames.mjs --only=ship-top`. Le script ne garde que la
+coque (l'écume de la photo est retirée : le sillage est dessiné par l'océan WebGL, et absent à quai), ajoute une
+ombre, vide deux cases (un 40') marquées en jaune et écrit `src/data/ship-slot.json` (poupe, axe, emplacement), lu
+par la timeline pour poser le conteneur. Contour de la coque et emplacement : constantes en tête du script.
+Ne pas relancer `assets:placeholders --only=ship-top` : il remplacerait la photo par le navire dessiné.
+
 ### Camion : images détourées
 
 `truck-side-*`, `truck-top-*` et `truck-rotate-*` ne viennent plus de Blender mais de deux images à fond
@@ -88,12 +97,11 @@ node scripts/encode-frames.mjs --only=truck-side-yellow,truck-side-black,truck-t
 
 Le même script produit aussi, pour l'embarquement (fin de la ville → mer), deux vues du dessus au cadrage de
 `truck-top` : `truck-top-empty` (camion sans conteneur, châssis de remorque dessiné) et `container-top` (le
-conteneur seul). Le conteneur est posé dans un emplacement libre du navire : `ship-top` (placeholders) laisse
-deux baies vides, marquées en jaune, et écrit leur position dans `src/data/ship-slot.json`, lue par la timeline.
+conteneur seul). Le conteneur est posé dans un emplacement libre du navire (`src/data/ship-slot.json`, écrit par
+`make-ship-photo.mjs`, voir « Navire »).
 
 ```bash
 node scripts/encode-frames.mjs --only=truck-top-empty,container-top
-node scripts/make-placeholders.mjs --only=ship-top && node scripts/encode-frames.mjs --only=ship-top
 ```
 
 Ne pas relancer `npm run assets:render` ni `assets:placeholders` sur ces séquences : ils écraseraient les images.

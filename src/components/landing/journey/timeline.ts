@@ -115,7 +115,10 @@ export function useJourneyTimeline(
       gsap.set([".j-plane", ".j-plane-shadow", truck], { xPercent: -50, yPercent: -50 });
 
       /** Décalage vertical du camion de côté : ses roues posées sur la route (76 % de la hauteur). */
-      const sideY = () => 0.76 * m.vh - (0.5 * m.vh - 0.5 * m.truckH + 0.648 * m.truckH);
+      // Mobile : route plus basse, sous la pile de cartes de services.
+      const ROAD_Y = mobile ? 0.84 : 0.76;
+      const sideY = () => ROAD_Y * m.vh - (0.5 * m.vh - 0.5 * m.truckH + 0.648 * m.truckH);
+      gsap.set(".j-road", { top: `${(ROAD_Y - 0.04) * 100}%` });
 
       const city = { u: U0, zoom: 1 };
       const board = { b: 0 };
@@ -165,7 +168,8 @@ export function useJourneyTimeline(
         if (b > 0) {
           const e = ease(b);
           const s0 = s, s1 = (0.36 * SEA_ZOOM * shipF * m.vw) / shipLw;
-          s = s0 * (s1 / s0) ** e;
+          // Recul rapide au début : la photo du navire, à l'échelle du conteneur, n'est que brièvement très agrandie.
+          s = s0 * (s1 / s0) ** (1 - (1 - b) ** 1.8);
           camX = lerp(roadEnd.x, shipCx, e);
           camY = lerp(roadEnd.y, shipCy - ((SEA_SHIP_Y - 0.5) * m.vh) / s1, e);
           // Le camion roule jusqu'au bord du quai et s'y arrête.
@@ -205,12 +209,17 @@ export function useJourneyTimeline(
         truckEmpty.style.transform = `translate(${((tx - camX) * s).toFixed(1)}px, ${((ty - camY) * s).toFixed(1)}px) rotate(${angle.toFixed(2)}deg) scale(${(s / m.s0).toFixed(4)})`;
         map.style.transform = `translate3d(${(cx - camX * s).toFixed(1)}px, ${(cy - camY * s).toFixed(1)}px, 0) scale(${s.toFixed(4)})`;
         truckTop.style.transform = `translate(${((tx - camX) * s).toFixed(1)}px, ${((ty - camY) * s).toFixed(1)}px) rotate(${angle.toFixed(2)}deg) scale(${(s / m.s0).toFixed(4)})`;
+        // Mobile : les jalons s'affichent tous au même endroit ; seul le plus proche est visible (pas de superposition).
+        let nearest = 0;
+        route.milestones.forEach((ms, i) => {
+          if (Math.abs(city.u - ms.t) < Math.abs(city.u - route.milestones[nearest].t)) nearest = i;
+        });
         milestones.forEach((li, i) => {
           const ms = route.milestones[i];
           // Mobile : le jalon actif s'affiche en haut de l'écran plutôt qu'à côté de la route.
           const x = mobile ? cx : cx + (ms.x - camX) * s;
           const y = mobile ? m.vh * 0.32 : cy + (ms.y - camY) * s;
-          const o = clamp01(1 - (Math.abs(city.u - ms.t) - 0.05) / 0.08);
+          const o = mobile && i !== nearest ? 0 : clamp01(1 - (Math.abs(city.u - ms.t) - 0.05) / 0.08);
           li.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) translate(-50%, -50%)`;
           li.style.opacity = o.toFixed(3);
           li.style.pointerEvents = o > 0.5 ? "auto" : "none";
@@ -339,7 +348,7 @@ export function useJourneyTimeline(
         .set(".j-truck-rot", { autoAlpha: 1 }, S.rotate[0])
         .fromTo(live.rotate, { current: 0 }, { current: 1, duration: S.rotate[1] - S.rotate[0] - 0.15 }, S.rotate[0])
         .to(".j-truck", { y: 0, duration: S.rotate[1] - S.rotate[0] - 0.15, ease: "power1.inOut" }, S.rotate[0])
-        .fromTo(".j-road", { top: "72%" }, { top: "-4%", duration: S.rotate[1] - S.rotate[0] - 0.15, ease: "power1.inOut" }, S.rotate[0])
+        .fromTo(".j-road", { top: `${(ROAD_Y - 0.04) * 100}%` }, { top: "-4%", duration: S.rotate[1] - S.rotate[0] - 0.15, ease: "power1.inOut" }, S.rotate[0])
         .fromTo(".j-s-city", { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.45 }, S.rotate[1] - 0.6)
         .set(".j-truck-rot", { autoAlpha: 0 }, S.rotate[1] - 0.15)
         .set(".j-truck-top", { autoAlpha: 1 }, S.rotate[1] - 0.15)

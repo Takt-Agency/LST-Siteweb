@@ -352,6 +352,8 @@ html{scroll-padding-top:env(safe-area-inset-top,0px)}
 .cta-radar i:nth-child(4){animation-delay:4.5s}
 .cta-radar b{position:absolute;left:50%;top:50%;width:14px;height:14px;margin:-7px;border-radius:50%;background:#161616;box-shadow:0 0 0 8px rgba(22,22,22,.08)}
 @keyframes radar{0%{transform:scale(.06);opacity:0}12%{opacity:1}100%{transform:scale(1);opacity:0}}
+/* Mobile : le texte occupe toute la largeur ; le radar part du coin bas-droit (vide), pas du milieu du texte. */
+@media (max-width:767px){ .cta-radar{left:auto;right:-38vw;top:auto;bottom:-38vw;width:100vw;translate:none} }
 @media (prefers-reduced-motion:reduce){
   .cta-radar i{animation:none;opacity:1}
   .cta-radar i:nth-child(1){transform:scale(.25)}
