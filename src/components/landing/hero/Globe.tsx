@@ -267,7 +267,8 @@ function Scene({ progress, reduced, mobile, labels }: GlobeProps & { labels: Rea
     // Position et zoom : globe à droite du texte (desktop) ou en bas (mobile), puis plongée vers Nabeul.
     const wide = size.width / size.height > 1.1;
     const z = smooth(0.0, 1, p);
-    tl.position.set(wide ? 1.36 * (1 - z) : 0, wide ? 0 : 0.62 * (1 - z), 0);
+    // Globe centré (le texte du hero est centré par-dessus) ; sur écran étroit, remonté au-dessus du texte.
+    tl.position.set(0, wide ? 0 : 0.62 * (1 - z), 0);
     // Globe à 70 % de sa taille initiale (caméra reculée), même plongée finale vers Nabeul.
     camera.position.set(0, 0, (wide ? 4.85 : 4.4) - (wide ? 3.6 : 3.15) * smooth(0.05, 1, p));
     camera.lookAt(tl.position.x * 0.4, tl.position.y * 0.4, 0);
