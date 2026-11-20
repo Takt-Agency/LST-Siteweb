@@ -141,7 +141,8 @@
 .motion-on .j-reason[data-i="2"]{left:45%;top:66%}
 .motion-on .j-reason[data-i="3"]{left:73%;top:66%}
 /* Mode live : le centrage des éléments animés en x/y passe par GSAP (xPercent/yPercent), pas par `translate`. */
-.motion-on .j-plane,.motion-on .j-plane-shadow{translate:none}
+/* Avion décalé à droite : sa queue ne passe pas sous la carte de texte (à gauche). */
+.motion-on .j-plane,.motion-on .j-plane-shadow{translate:none;left:57%}
 .motion-on .j-truck{position:absolute;left:50%;top:50%;width:min(70vw,124vh);aspect-ratio:16/9;visibility:hidden;opacity:0;z-index:6;pointer-events:none}
 .j-truck .j-truck-side,.j-truck .j-truck-rot,.j-truck .j-truck-top{position:absolute;inset:0}
 .j-truck-rot,.j-truck-top{visibility:hidden;opacity:0}
@@ -222,7 +223,7 @@ html:not(.motion-on) .j-truck,html:not(.motion-on) .j-speed,html:not(.motion-on)
   .motion-on .j-panel ul,.motion-on .j-reason p,.motion-on .j-p-about > p{position:absolute!important;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
   .j-hud{display:none}
   .motion-on .j-truck{width:96vw}
-  .motion-on .j-plane,.motion-on .j-plane-shadow{width:70vw;top:36%}
+  .motion-on .j-plane,.motion-on .j-plane-shadow{width:70vw;top:36%;left:50%}
   .motion-on .j-reason{width:44vw;padding:12px}
   .motion-on .j-reason[data-i="0"],.motion-on .j-reason[data-i="2"]{left:4%}
   .motion-on .j-reason[data-i="1"],.motion-on .j-reason[data-i="3"]{left:52%}
