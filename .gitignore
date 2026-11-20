@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# sources des assets 3D (modèles sous licence, rendus bruts)
+/assets-src/models/
+/assets-src/renders/

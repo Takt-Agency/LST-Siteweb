@@ -1,0 +1,521 @@
+{
+  "container-top": {
+    "aspect": 1.77778,
+    "desktop": {
+      "pattern": "/sequences/container-top/desktop/frame_{i}.{ext}",
+      "count": 1
+    },
+    "mobile": {
+      "pattern": "/sequences/container-top/mobile/frame_{i}.{ext}",
+      "count": 1
+    },
+    "bbox": {
+      "first": {
+        "x": 16.042,
+        "y": 41.019,
+        "w": 53.698,
+        "h": 17.963
+      },
+      "last": {
+        "x": 16.042,
+        "y": 41.019,
+        "w": 53.698,
+        "h": 17.963
+      }
+    },
+    "bytes": {
+      "desktop": {
+        "avif": 7409,
+        "webp": 15686
+      },
+      "mobile": {
+        "avif": 3418,
+        "webp": 6488
+      }
+    }
+  },
+  "plane-top": {
+    "aspect": 1,
+    "desktop": {
+      "pattern": "/sequences/plane-top/desktop/frame_{i}.{ext}",
+      "count": 1
+    },
+    "mobile": {
+      "pattern": "/sequences/plane-top/mobile/frame_{i}.{ext}",
+      "count": 1
+    },
+    "bbox": {
+      "first": {
+        "x": 6.125,
+        "y": 15.937,
+        "w": 81.625,
+        "h": 68.188
+      },
+      "last": {
+        "x": 6.125,
+        "y": 15.937,
+        "w": 81.625,
+        "h": 68.188
+      }
+    },
+    "bytes": {
+      "desktop": {
+        "avif": 33042,
+        "webp": 71888
+      },
+      "mobile": {
+        "avif": 14801,
+        "webp": 27282
+      }
+    }
+  },
+  "reachstacker-load-black": {
+    "aspect": 1.77778,
+    "desktop": {
+      "pattern": "/sequences/reachstacker-load-black/desktop/frame_{i}.{ext}",
+      "count": 72
+    },
+    "mobile": {
+      "pattern": "/sequences/reachstacker-load-black/mobile/frame_{i}.{ext}",
+      "count": 36
+    },
+    "bbox": {
+      "first": {
+        "x": 1.25,
+        "y": 33.519,
+        "w": 97.135,
+        "h": 37.87
+      },
+      "last": {
+        "x": 34.688,
+        "y": 32.13,
+        "w": 63.698,
+        "h": 39.259
+      }
+    },
+    "bytes": {
+      "desktop": {
+        "avif": 1854588,
+        "webp": 4041656
+      },
+      "mobile": {
+        "avif": 416108,
+        "webp": 877612
+      }
+    }
+  },
+  "reachstacker-load-yellow": {
+    "aspect": 1.77778,
+    "desktop": {
+      "pattern": "/sequences/reachstacker-load-yellow/desktop/frame_{i}.{ext}",
+      "count": 72
+    },
+    "mobile": {
+      "pattern": "/sequences/reachstacker-load-yellow/mobile/frame_{i}.{ext}",
+      "count": 36
+    },
+    "bbox": {
+      "first": {
+        "x": 1.25,
+        "y": 33.519,
+        "w": 97.135,
+        "h": 37.87
+      },
+      "last": {
+        "x": 34.688,
+        "y": 32.13,
+        "w": 63.698,
+        "h": 39.259
+      }
+    },
+    "bytes": {
+      "desktop": {
+        "avif": 1823413,
+        "webp": 3974004
+      },
+      "mobile": {
+        "avif": 467631,
+        "webp": 986762
+      }
+    }
+  },
+  "ship-top": {
+    "aspect": 4,
+    "desktop": {
+      "pattern": "/sequences/ship-top/desktop/frame_{i}.{ext}",
+      "count": 1
+    },
+    "mobile": {
+      "pattern": "/sequences/ship-top/mobile/frame_{i}.{ext}",
+      "count": 1
+    },
+    "bbox": {
+      "first": {
+        "x": 3.167,
+        "y": 20.667,
+        "w": 94.458,
+        "h": 63.333
+      },
+      "last": {
+        "x": 3.167,
+        "y": 20.667,
+        "w": 94.458,
+        "h": 63.333
+      }
+    },
+    "bytes": {
+      "desktop": {
+        "avif": 15624,
+        "webp": 31000
+      },
+      "mobile": {
+        "avif": 9456,
+        "webp": 15596
+      }
+    }
+  },
+  "truck-rotate-black": {
+    "aspect": 1.77778,
+    "desktop": {
+      "pattern": "/sequences/truck-rotate-black/desktop/frame_{i}.{ext}",
+      "count": 60
+    },
+    "mobile": {
+      "pattern": "/sequences/truck-rotate-black/mobile/frame_{i}.{ext}",
+      "count": 30
+    },
+    "bbox": {
+      "first": {
+        "x": 15.937,
+        "y": 34.63,
+        "w": 68.125,
+        "h": 30.556
+      },
+      "last": {
+        "x": 16.042,
+        "y": 38.333,
+        "w": 68.542,
+        "h": 23.241
+      }
+    },
+    "bytes": {
+      "desktop": {
+        "avif": 850863,
+        "webp": 1931250
+      },
+      "mobile": {
+        "avif": 208358,
+        "webp": 406020
+      }
+    }
+  },
+  "truck-rotate-yellow": {
+    "aspect": 1.77778,
+    "desktop": {
+      "pattern": "/sequences/truck-rotate-yellow/desktop/frame_{i}.{ext}",
+      "count": 60
+    },
+    "mobile": {
+      "pattern": "/sequences/truck-rotate-yellow/mobile/frame_{i}.{ext}",
+      "count": 30
+    },
+    "bbox": {
+      "first": {
+        "x": 15.937,
+        "y": 34.63,
+        "w": 68.125,
+        "h": 30.556
+      },
+      "last": {
+        "x": 16.042,
+        "y": 38.333,
+        "w": 68.542,
+        "h": 23.241
+      }
+    },
+    "bytes": {
+      "desktop": {
+        "avif": 889958,
+        "webp": 2017838
+      },
+      "mobile": {
+        "avif": 202763,
+        "webp": 395496
+      }
+    }
+  },
+  "truck-side-black": {
+    "aspect": 1.77778,
+    "desktop": {
+      "pattern": "/sequences/truck-side-black/desktop/frame_{i}.{ext}",
+      "count": 1
+    },
+    "mobile": {
+      "pattern": "/sequences/truck-side-black/mobile/frame_{i}.{ext}",
+      "count": 1
+    },
+    "bbox": {
+      "first": {
+        "x": 15.937,
+        "y": 34.63,
+        "w": 68.125,
+        "h": 30.556
+      },
+      "last": {
+        "x": 15.937,
+        "y": 34.63,
+        "w": 68.125,
+        "h": 30.556
+      }
+    },
+    "bytes": {
+      "desktop": {
+        "avif": 23435,
+        "webp": 54424
+      },
+      "mobile": {
+        "avif": 10469,
+        "webp": 20314
+      }
+    },
+    "wheels": [
+      {
+        "x": 28.542,
+        "y": 60.741,
+        "d": 3.854,
+        "src": "/sequences/truck-side-photo/wheel-0.webp"
+      },
+      {
+        "x": 33.75,
+        "y": 60.741,
+        "d": 3.854,
+        "src": "/sequences/truck-side-photo/wheel-1.webp"
+      },
+      {
+        "x": 39.063,
+        "y": 60.741,
+        "d": 3.854,
+        "src": "/sequences/truck-side-photo/wheel-2.webp"
+      },
+      {
+        "x": 61.328,
+        "y": 60.417,
+        "d": 4.115,
+        "src": "/sequences/truck-side-photo/wheel-3.webp"
+      },
+      {
+        "x": 77.083,
+        "y": 60.556,
+        "d": 4.063,
+        "src": "/sequences/truck-side-photo/wheel-4.webp"
+      }
+    ]
+  },
+  "truck-side-yellow": {
+    "aspect": 1.77778,
+    "desktop": {
+      "pattern": "/sequences/truck-side-yellow/desktop/frame_{i}.{ext}",
+      "count": 1
+    },
+    "mobile": {
+      "pattern": "/sequences/truck-side-yellow/mobile/frame_{i}.{ext}",
+      "count": 1
+    },
+    "bbox": {
+      "first": {
+        "x": 15.937,
+        "y": 34.63,
+        "w": 68.125,
+        "h": 30.556
+      },
+      "last": {
+        "x": 15.937,
+        "y": 34.63,
+        "w": 68.125,
+        "h": 30.556
+      }
+    },
+    "bytes": {
+      "desktop": {
+        "avif": 23435,
+        "webp": 54424
+      },
+      "mobile": {
+        "avif": 10469,
+        "webp": 20314
+      }
+    },
+    "wheels": [
+      {
+        "x": 28.542,
+        "y": 60.741,
+        "d": 3.854,
+        "src": "/sequences/truck-side-photo/wheel-0.webp"
+      },
+      {
+        "x": 33.75,
+        "y": 60.741,
+        "d": 3.854,
+        "src": "/sequences/truck-side-photo/wheel-1.webp"
+      },
+      {
+        "x": 39.063,
+        "y": 60.741,
+        "d": 3.854,
+        "src": "/sequences/truck-side-photo/wheel-2.webp"
+      },
+      {
+        "x": 61.328,
+        "y": 60.417,
+        "d": 4.115,
+        "src": "/sequences/truck-side-photo/wheel-3.webp"
+      },
+      {
+        "x": 77.083,
+        "y": 60.556,
+        "d": 4.063,
+        "src": "/sequences/truck-side-photo/wheel-4.webp"
+      }
+    ]
+  },
+  "truck-top-black": {
+    "aspect": 1.77778,
+    "desktop": {
+      "pattern": "/sequences/truck-top-black/desktop/frame_{i}.{ext}",
+      "count": 1
+    },
+    "mobile": {
+      "pattern": "/sequences/truck-top-black/mobile/frame_{i}.{ext}",
+      "count": 1
+    },
+    "bbox": {
+      "first": {
+        "x": 16.042,
+        "y": 38.333,
+        "w": 68.542,
+        "h": 23.241
+      },
+      "last": {
+        "x": 16.042,
+        "y": 38.333,
+        "w": 68.542,
+        "h": 23.241
+      }
+    },
+    "bytes": {
+      "desktop": {
+        "avif": 14767,
+        "webp": 32310
+      },
+      "mobile": {
+        "avif": 6210,
+        "webp": 12564
+      }
+    }
+  },
+  "truck-top-empty": {
+    "aspect": 1.77778,
+    "desktop": {
+      "pattern": "/sequences/truck-top-empty/desktop/frame_{i}.{ext}",
+      "count": 1
+    },
+    "mobile": {
+      "pattern": "/sequences/truck-top-empty/mobile/frame_{i}.{ext}",
+      "count": 1
+    },
+    "bbox": {
+      "first": {
+        "x": 16.042,
+        "y": 38.333,
+        "w": 68.542,
+        "h": 23.241
+      },
+      "last": {
+        "x": 16.042,
+        "y": 38.333,
+        "w": 68.542,
+        "h": 23.241
+      }
+    },
+    "bytes": {
+      "desktop": {
+        "avif": 11251,
+        "webp": 24546
+      },
+      "mobile": {
+        "avif": 6270,
+        "webp": 11560
+      }
+    }
+  },
+  "truck-top-yellow": {
+    "aspect": 1.77778,
+    "desktop": {
+      "pattern": "/sequences/truck-top-yellow/desktop/frame_{i}.{ext}",
+      "count": 1
+    },
+    "mobile": {
+      "pattern": "/sequences/truck-top-yellow/mobile/frame_{i}.{ext}",
+      "count": 1
+    },
+    "bbox": {
+      "first": {
+        "x": 16.042,
+        "y": 38.333,
+        "w": 68.542,
+        "h": 23.241
+      },
+      "last": {
+        "x": 16.042,
+        "y": 38.333,
+        "w": 68.542,
+        "h": 23.241
+      }
+    },
+    "bytes": {
+      "desktop": {
+        "avif": 14767,
+        "webp": 32310
+      },
+      "mobile": {
+        "avif": 6210,
+        "webp": 12564
+      }
+    }
+  },
+  "wheel": {
+    "aspect": 1,
+    "desktop": {
+      "pattern": "/sequences/wheel/desktop/frame_{i}.{ext}",
+      "count": 1
+    },
+    "mobile": {
+      "pattern": "/sequences/wheel/mobile/frame_{i}.{ext}",
+      "count": 1
+    },
+    "bbox": {
+      "first": {
+        "x": 0.781,
+        "y": 0.781,
+        "w": 98.438,
+        "h": 98.438
+      },
+      "last": {
+        "x": 0.781,
+        "y": 0.781,
+        "w": 98.438,
+        "h": 98.438
+      }
+    },
+    "bytes": {
+      "desktop": {
+        "avif": 3660,
+        "webp": 4280
+      },
+      "mobile": {
+        "avif": 1903,
+        "webp": 2916
+      }
+    }
+  }
+}

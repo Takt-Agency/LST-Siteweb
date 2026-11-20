@@ -25,7 +25,7 @@
 
 .svc-count{display:flex;align-items:center;gap:14px;font-size:.85rem;font-weight:500;font-variant-numeric:tabular-nums;white-space:nowrap}
 .svc-count b{font-size:1.05rem;font-weight:600}
-.svc-count .of{opacity:.5}
+.svc-count .of{opacity:.78}
 .svc-prog{display:flex;gap:4px}
 .svc-prog i{width:14px;height:3px;border-radius:2px;background:currentColor;opacity:.16}
 .svc-prog i.on{opacity:1}

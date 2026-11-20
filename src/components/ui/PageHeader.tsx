@@ -28,7 +28,7 @@ export function PageHeader({
               <li key={crumb.label} className="flex items-center gap-2">
                 {i > 0 && <span aria-hidden>/</span>}
                 {crumb.href ? (
-                  <Link href={crumb.href} className="transition-colors hover:text-ink">
+                  <Link href={crumb.href} prefetch={crumb.href === "/" ? false : undefined} className="transition-colors hover:text-ink">
                     {crumb.label}
                   </Link>
                 ) : (

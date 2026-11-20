@@ -5,11 +5,19 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 import { finalCta } from "@/data/home";
 import { Reveal } from "@/components/motion/Reveal";
 
-/** Homepage §05-10 — closing call to action on a full-width brand-yellow band: quote form and contact page. */
+/** Homepage §05-10 — CTA final sur bande jaune, avec cercles « radar » animés derrière le titre. */
 export function FinalCta() {
   return (
-    <section aria-labelledby="cta-title" className="bg-brand-yellow py-20 text-ink lg:py-28">
-      <div className="container-site grid gap-10 lg:grid-cols-12 lg:items-end lg:gap-16">
+    <section aria-labelledby="cta-title" className="cta-band relative overflow-hidden bg-brand-yellow py-20 text-ink lg:py-28">
+      {/* Cercles concentriques (effet radar) derrière le titre — décoratifs. */}
+      <div className="cta-radar" aria-hidden="true">
+        <i />
+        <i />
+        <i />
+        <i />
+        <b />
+      </div>
+      <div className="container-site relative grid gap-10 lg:grid-cols-12 lg:items-end lg:gap-16">
         <Reveal className="lg:col-span-7">
           <Eyebrow className="text-ink/70" markClassName="bg-ink">{finalCta.eyebrow}</Eyebrow>
           <h2 id="cta-title" className="mt-6 text-[2.2rem] leading-[1.05] font-semibold tracking-[-0.035em] sm:text-5xl lg:text-6xl">

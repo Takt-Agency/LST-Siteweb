@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { contact } from "@/data/landing";
 import { legalNav, site } from "@/data/site";
+import { FooterMap } from "./FooterMap";
 
 const serviceLinks = [
   { label: "Transport terrestre", href: "/services/transport-terrestre" },
@@ -25,9 +26,10 @@ export function Footer() {
   return (
     <footer className="foot">
       <div className="wrap">
+        <FooterMap />
         <div className="cols">
-          <div>
-            <Link className="brand" href="/">
+          <div className="foot-brand">
+            <Link className="brand" href="/" prefetch={false}>
               <Image
                 className="logo-full"
                 src="/brand/lst-express-logo-signature.png"
@@ -42,23 +44,23 @@ export function Footer() {
             </p>
           </div>
           <div>
-            <h4>Services</h4>
+            <h2 className="foot-h">Services</h2>
             <ul>
               {serviceLinks.map((l) => (
-                <li key={l.href}><Link href={l.href}>{l.label}</Link></li>
+                <li key={l.href}><Link href={l.href} prefetch={l.href.startsWith("/#") ? false : undefined}>{l.label}</Link></li>
               ))}
             </ul>
           </div>
           <div>
-            <h4>Entreprise</h4>
+            <h2 className="foot-h">Entreprise</h2>
             <ul>
               {companyLinks.map((l) => (
-                <li key={l.href}><Link href={l.href}>{l.label}</Link></li>
+                <li key={l.href}><Link href={l.href} prefetch={l.href.startsWith("/#") ? false : undefined}>{l.label}</Link></li>
               ))}
             </ul>
           </div>
           <div>
-            <h4>Contact</h4>
+            <h2 className="foot-h">Contact</h2>
             <ul>
               <li><a href={contact.phoneHref}>{contact.phone}</a></li>
               <li><a href={`mailto:${contact.email}`}>{contact.email}</a></li>

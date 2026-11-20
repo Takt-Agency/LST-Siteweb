@@ -53,7 +53,7 @@ export function Header({ solid: alwaysSolid = false }: { solid?: boolean }) {
   return (
     <header className={state}>
       <div className="bar-in">
-        <Link className="brand" href="/" aria-label="LST Express, accueil" onClick={close}>
+        <Link className="brand" href="/" prefetch={false} aria-label="LST Express, accueil" onClick={close}>
           <Image
             className="logo"
             src="/brand/lst-express-logo.png"
