@@ -43,6 +43,15 @@ export function Providers({ children }: { children: ReactNode }) {
       ScrollTrigger.refresh();
     };
 
+    // Si React a dû re-rendre <html> (hydratation ratée, ex. nœud injecté par l'hébergeur), la classe posée
+    // par le script inline du layout a disparu : la remettre, puis recalculer les déclencheurs.
+    const root = document.documentElement;
+    if (!root.classList.contains(mq.matches ? "motion-off" : "motion-on")) {
+      root.classList.toggle("motion-on", !mq.matches);
+      root.classList.toggle("motion-off", mq.matches);
+      ScrollTrigger.refresh();
+    }
+
     start();
     mq.addEventListener("change", onChange);
     // Les polices changent la hauteur des blocs : recalculer les déclencheurs une fois chargées.

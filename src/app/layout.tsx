@@ -24,7 +24,15 @@ export const viewport: Viewport = {
   themeColor: "#0e1012",
 };
 
+/*
+ * Exécuté pendant l'analyse du <head>, avant l'hydratation :
+ * 1. retire les commentaires HTML (et les blancs) du <head> : un hébergeur peut en injecter un (Netlify ajoute
+ *    « This site is hosted on Netlify… » juste après <meta charset>). React ne l'attend pas, l'hydratation
+ *    échoue (erreur #418), toute la page est re-rendue côté client et la classe ci-dessous est perdue ;
+ * 2. choisit le mode d'animation (classe sur <html>).
+ */
 const MOTION_SCRIPT =
+  "try{var h=document.head,n=h.firstChild,x;while(n){x=n.nextSibling;if(n.nodeType===8||(n.nodeType===3&&!n.data.trim()))h.removeChild(n);n=x}}catch(e){}" +
   "try{document.documentElement.classList.add(matchMedia('(prefers-reduced-motion: reduce)').matches?'motion-off':'motion-on')}catch(e){}";
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
