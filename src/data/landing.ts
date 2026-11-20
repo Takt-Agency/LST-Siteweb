@@ -31,27 +31,21 @@ export const nav: NavEntry[] = [
   { href: "/contact", label: "Contact" },
 ];
 
-/** Étapes du parcours animé (avion, camion, bateau) ; a et b = fenêtre de défilement (0 à 1). */
+/** Étapes du parcours animé (avion, route, mer) — textes des panneaux 01, 02, 03 de #journey. */
 export const journeySteps = [
   {
-    a: 0.12,
-    b: 0.335,
     step: "01 Fret aérien",
     title: "Pour vos envois urgents ou de forte valeur.",
     text: "Avec nos partenaires, nous réservons la capacité, préparons la LTA et coordonnons l’envoi jusqu’au destinataire.",
     points: ["Envois express et urgents", "Fret aérien et groupage aérien", "Livraison depuis l’aéroport"],
   },
   {
-    a: 0.365,
-    b: 0.675,
     step: "02 Transit & transport terrestre",
     title: "Des formalités maîtrisées, puis la route.",
     text: "Nous suivons le dédouanement jusqu’à la mainlevée, puis organisons le transport en camion complet ou en groupage.",
     points: ["Contrôle des documents", "Camion complet ou groupage", "National et international"],
   },
   {
-    a: 0.71,
-    b: 0.935,
     step: "03 Fret maritime",
     title: "La solution économique pour les gros volumes.",
     text: "Conteneurs 20’, 40’ et 40’ HC ou groupage, à l’import comme à l’export, de la réservation au post-acheminement.",

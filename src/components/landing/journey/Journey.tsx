@@ -1,250 +1,361 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useRef, useState, type CSSProperties } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
-import { journeySteps } from "@/data/landing";
-import { PlaneShape, PlaneSilhouette } from "@/components/landing/PlaneShape";
-import { ShipShape, TruckShape } from "@/components/landing/Vehicles";
-import { CLOUD_SHADOW_OFFSET, cloudShadow, cloudTexture, scene, skyClouds } from "./scene";
-import { startJourney } from "./animate";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowRight, faBolt, faEarthAfrica, faHeadset, faSliders } from "@fortawesome/free-solid-svg-icons";
+import { journeySteps, methodSteps, quoteHref, services, type ServiceArtKind } from "@/data/landing";
+import { reasons } from "@/data/services";
+import { method, whyLst } from "@/data/home";
+import { keyFigures } from "@/data/site";
+import { sequence, truckSequence, WHEEL_SRC } from "@/data/sequences";
+import route from "@/data/city-route.json";
+import { ServiceIcon } from "@/components/ui/ServiceIcon";
+import { FrameSequence } from "@/components/scroll/FrameSequence";
+import { RotatingWheel } from "@/components/scroll/RotatingWheel";
+import { SpeedHUD } from "@/components/scroll/SpeedHUD";
+import { RevealText } from "@/components/scroll/RevealText";
+import { SeqImage } from "@/components/scroll/SeqImage";
+import type { IconName } from "@/types";
+import type { OceanState } from "./Ocean";
+import { useJourneyTimeline } from "./timeline";
+import { SCENES, TOTAL } from "./scenes";
+import "./journey.css";
 
+const Ocean = dynamic(() => import("./Ocean"), { ssr: false });
+
+const ICONS: Record<ServiceArtKind, IconName> = {
+  truck: "truck",
+  ship: "ship",
+  plane: "plane",
+  customs: "file-check",
+  logistics: "warehouse",
+  consulting: "chart-line",
+};
+const REASON_ICONS = [faHeadset, faSliders, faBolt, faEarthAfrica];
+const pad = (n: number) => String(n).padStart(2, "0");
+
+const SEQ = {
+  side: truckSequence("truck-side"),
+  rotate: truckSequence("truck-rotate"),
+  top: truckSequence("truck-top"),
+  load: truckSequence("reachstacker-load"),
+  plane: sequence("plane-top"),
+  ship: sequence("ship-top"),
+};
+
+/** Nuages de la scène « Air » : [x %, y %, taille vw, image], en trois plans de profondeur. */
+const CLOUDS = {
+  far: [[-4, 2, 40, 1], [30, -4, 44, 2], [64, 6, 42, 3], [96, 24, 40, 4], [8, 40, 42, 4], [44, 34, 40, 1], [80, 56, 44, 2], [-2, 72, 44, 3], [36, 70, 42, 2], [70, 84, 40, 4]],
+  mid: [[-6, 24, 50, 3], [40, 48, 52, 4], [88, 8, 48, 2], [70, 76, 46, 1], [18, 86, 48, 2]],
+  near: [[30, -8, 60, 2], [96, 40, 64, 4], [10, 78, 58, 3]],
+} as const;
+
+/** Position d'une scène dans le défilement (pour les ancres et le focus clavier). */
+const at = (u: number) => ({ "data-at": u }) as Record<string, number>;
+
+export type JourneyLive = {
+  load: { current: number };
+  rotate: { current: number };
+  distance: { current: number };
+  ocean: { current: OceanState };
+};
 
 /**
- * Hero : parcours d'un envoi animé au défilement (avion, puis camion, puis bateau).
- * La section fait 700 vh ; la scène reste collée à l'écran pendant que l'on défile.
+ * Parcours réaliste au défilement (scène collante pilotée par une timeline GSAP) :
+ * Air (avion au-dessus des nuages, atterrissage) → chargement du conteneur au port →
+ * le camion roule (services) → bascule de caméra → route vue du ciel (méthode) → la mer (à propos).
+ * Tous les textes sont dans le DOM (SSR). Sans JavaScript ou en reduced-motion : version statique.
  */
 export function Journey() {
-  const ref = useRef<HTMLElement>(null);
-
-  useEffect(() => {
-    if (!ref.current) return;
-    return startJourney(ref.current);
-  }, []);
+  const root = useRef<HTMLElement>(null);
+  const [live] = useState<JourneyLive>(() => ({
+    load: { current: 0 },
+    rotate: { current: 0 },
+    distance: { current: 0 },
+    ocean: { current: { zoom: 1.35, shipX: 0.5, shipY: 0.52, shipLen: 0.5, shipBeam: 0.16, speed: 0.03 } },
+  }));
+  // Chargement des scènes lourdes armé à l'approche, dans l'ordre du parcours.
+  const [armed, setArmed] = useState(0);
+  const mode = useJourneyTimeline(root, live, setArmed);
 
   return (
     <section
       id="journey"
-      ref={ref}
-      aria-label="Le parcours d’un envoi LST Express : par avion, par camion, puis par bateau"
+      ref={root}
+      className="journey"
+      data-mode={mode}
+      style={{ "--total": TOTAL } as CSSProperties}
+      aria-label="Le parcours d’un envoi LST Express : par avion, puis par la route, puis par la mer"
     >
-      <div id="stage">
-        <svg id="map" aria-hidden="true">
-          <defs>
-            <pattern id="grid" width="200" height="200" patternUnits="userSpaceOnUse">
-              <path d="M200 0H0V200" fill="none" stroke="#F2F3F5" strokeOpacity=".045" strokeWidth="2" />
-            </pattern>
-            {/* mer : vaguelettes claires sur fond bleu (#stage) */}
-            <pattern id="ripple" width="120" height="60" patternUnits="userSpaceOnUse">
-              <path d="M0 30q15-8 30 0t30 0" fill="none" stroke="#9fd8ff" strokeOpacity=".13" strokeWidth="2" />
-              <path d="M66 52q10-5 20 0" fill="none" stroke="#9fd8ff" strokeOpacity=".08" strokeWidth="1.5" />
-            </pattern>
-            {/* ciel de l'introduction : même bleu profond que la mer (--water, #0b2e4c), à peine nuancé,
-                pour que le passage du ciel à la mer soit continu ; léger halo bleu clair */}
-            <linearGradient id="skyG" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stopColor="#0a2844" />
-              <stop offset=".5" stopColor="#0b2e4c" />
-              <stop offset="1" stopColor="#0e3656" />
-            </linearGradient>
-            <radialGradient id="hazeG" cx="70%" cy="35%" r="60%">
-              <stop offset="0" stopColor="#9fd8ff" stopOpacity=".12" />
-              <stop offset="1" stopColor="#9fd8ff" stopOpacity="0" />
-            </radialGradient>
-          </defs>
+      {/* Ancres placées à la position de défilement de leur scène. */}
+      <span id="methode" className="j-anchor" style={{ "--at": SCENES.city[0] } as CSSProperties} />
+      <span id="apropos" className="j-anchor" style={{ "--at": SCENES.sea[0] + 1.6 } as CSSProperties} />
 
-          <g id="cam">
-            <rect x="-3000" y="-2000" width="11000" height="7000" fill="url(#ripple)" />
-            {/* hauts-fonds : dégradé turquoise le long de la côte (traits superposés, sans filtre coûteux) */}
-            <g fill="none" stroke="#2fa3d6" strokeLinejoin="round">
-              <path d={LAND} strokeWidth="190" strokeOpacity=".07" />
-              <path d={LAND} strokeWidth="120" strokeOpacity=".09" />
-              <path d={LAND} strokeWidth="64" strokeOpacity=".13" />
-              <path d={LAND} strokeWidth="26" stroke="#7fd3f2" strokeOpacity=".22" />
-            </g>
-            {/* terre */}
-            <path id="land" fill="#1b1c1f" stroke="#2c2f35" strokeWidth="4" d={LAND} />
-            <g id="blocks">
-              {scene.blocks.map((b, i) => (
-                <rect key={i} x={b.x} y={b.y} width={b.width} height={b.height} rx="3" fill={b.fill} opacity={b.opacity} />
-              ))}
-            </g>
-            <g id="roads" fill="none" stroke="#2d2f35" strokeLinecap="round">
-              {scene.roads.map((r, i) => (
-                <path key={i} d={r.d} strokeWidth={r.strokeWidth} />
-              ))}
-            </g>
-
-            {/* aéroport */}
-            <g id="airport">
-              <rect x="1150" y="560" width="760" height="330" rx="10" fill="#202125" />
-              <rect x="1210" y="676" width="620" height="48" fill="#2a2c31" />
-              <path d="M1240 700H1800" stroke="#F2F3F5" strokeOpacity=".55" strokeWidth="3" strokeDasharray="26 22" />
-              <g fill="#F2F3F5" fillOpacity=".55">
-                {[1218, 1808].flatMap((x) =>
-                  [682, 690, 706, 714].map((y) => <rect key={`${x}-${y}`} x={x} y={y} width="14" height="4" />),
-                )}
-              </g>
-              <path d="M1260 760H1790M1300 724V760M1700 724V760" stroke="#2a2c31" strokeWidth="16" />
-              <rect x="1380" y="780" width="260" height="56" rx="4" fill="#2c2e33" />
-              <rect x="1756" y="740" width="128" height="96" rx="4" fill="#26282d" />
-              <path d="M1820 836V1040" stroke="#2d2f35" strokeWidth="22" />
-              <path d="M1100 1040H1900" stroke="#2d2f35" strokeWidth="22" />
-            </g>
-
-            {/* port */}
-            <g id="port">
-              <rect x="2700" y="1380" width="300" height="420" fill="#202125" />
-              <g id="stacks">
-                {scene.stacks.map((b, i) => (
-                  <rect key={i} x={b.x} y={b.y} width={b.width} height={b.height} fill={b.fill} opacity={b.opacity} />
-                ))}
-              </g>
-              <rect x="2990" y="1590" width="480" height="34" fill="#2a2c31" />
-              <rect x="2990" y="1760" width="380" height="30" fill="#2a2c31" />
-              <g fill="#F8B80B">
-                <rect x="3080" y="1580" width="10" height="54" />
-                <rect x="3200" y="1580" width="10" height="54" />
-                <rect x="3320" y="1580" width="10" height="54" />
-              </g>
-              <g fill="#3d4148">
-                <rect x="3074" y="1576" width="22" height="8" />
-                <rect x="3194" y="1576" width="22" height="8" />
-                <rect x="3314" y="1576" width="22" height="8" />
-              </g>
-            </g>
-
-            <rect x="-3000" y="-2000" width="11000" height="7000" fill="url(#grid)" />
-
-            {/* ombres des nuages au sol (visibles pendant le vol) */}
-            <g id="cshadows" opacity="0">
-              {skyClouds.map(([x, y, size], i) => (
-                <image
-                  key={i}
-                  href={cloudShadow(i)}
-                  x={x - size / 2 + CLOUD_SHADOW_OFFSET.x}
-                  y={y - size * 0.31 + CLOUD_SHADOW_OFFSET.y}
-                  width={size}
-                  height={size * 0.62}
-                  preserveAspectRatio="none"
-                />
-              ))}
-            </g>
-
-            {/* itinéraires */}
-            <g fill="none" strokeLinecap="round" strokeLinejoin="round">
-              <path id="bA" stroke="#F2F3F5" strokeOpacity=".28" d={ROUTE_AIR} />
-              <path id="bR" stroke="#F2F3F5" strokeOpacity=".28" d={ROUTE_ROAD} />
-              <path id="bS" stroke="#F2F3F5" strokeOpacity=".28" d={ROUTE_SEA} />
-              <path id="rA" stroke="#F8B80B" d={ROUTE_AIR} />
-              <path id="rR" stroke="#F8B80B" d={ROUTE_ROAD} />
-              <path id="rS" stroke="#F8B80B" d={ROUTE_SEA} />
-            </g>
-
-            {/* plateformes */}
-            <g id="hubs">
-              <g className="hub" data-x="1820" data-y="790">
-                <circle className="ring" fill="none" stroke="#F8B80B" />
-                <circle className="dot" fill="#F8B80B" />
-              </g>
-              <g className="hub" data-x="2930" data-y="1540">
-                <circle className="ring" fill="none" stroke="#F8B80B" />
-                <circle className="dot" fill="#F8B80B" />
-              </g>
-            </g>
-            <text className="lbl" data-x="1230" data-y="610">Aéroport</text>
-            <text className="lbl sub" data-x="1230" data-y="610" data-dy="1.25">Fret aérien</text>
-            <text className="lbl" data-x="2720" data-y="1350">Port</text>
-            <text className="lbl sub" data-x="2720" data-y="1350" data-dy="1.25">Fret maritime</text>
-            <text className="lbl" data-x="1990" data-y="1000">Transit &amp; douane</text>
-
-            {/* bateau */}
-            <g id="ship">
-              <path
-                id="wake"
-                d="M-160 -26L-520 -110M-160 26L-520 110M-160 0L-600 0"
-                stroke="#F2F3F5"
-                strokeWidth="5"
-                strokeLinecap="round"
-                fill="none"
-                opacity="0"
-              />
-              <ShipShape id="journey-ship" containers={scene.boxes} />
-            </g>
-
-            {/* camion */}
-            <g id="truck">
-              <TruckShape id="journey-truck" />
-            </g>
-
-            {/* ombre de l'avion */}
-            <g id="pShadow" opacity=".5">
-              <g fill="#000">
-                <PlaneSilhouette />
-              </g>
-            </g>
-          </g>
-
-          <g id="veil">
-            <rect x="0" y="0" width="100%" height="100%" fill="url(#skyG)" />
-            <rect x="0" y="0" width="100%" height="100%" fill="url(#hazeG)" />
-          </g>
-          <g id="iclouds">
-            {scene.introClouds.map((_, i) => (
-              <image key={i} href={cloudTexture(i)} preserveAspectRatio="none" opacity="0" />
-            ))}
-          </g>
-          <g id="cam2">
-            <g id="plane">
-              <PlaneShape id="journey-plane" />
-            </g>
-          </g>
-        </svg>
-
-        <div id="clouds">
-          {skyClouds.map((_, i) => (
-            <div key={i} className="cl" style={{ backgroundImage: `url(${cloudTexture(i + 1)})` }} />
-          ))}
-        </div>
-        <div id="scrim" />
-
-        <div className="frame">
-          {journeySteps.map((s) => (
-            <div key={s.step} className="panel" data-a={s.a} data-b={s.b}>
-              <div className="step"><i />{s.step}</div>
-              <h2>{s.title}</h2>
-              <p>{s.text}</p>
-              <ul>
-                {s.points.map((p) => (
-                  <li key={p}>{p}</li>
-                ))}
-              </ul>
-            </div>
-          ))}
-          <div className="panel" id="end" data-a=".955" data-b="1.2">
-            <div className="step"><i />De bout en bout</div>
-            <h2>Un seul interlocuteur, du devis à la livraison.</h2>
-            <p>Décrivez-nous votre besoin, nous revenons vers vous.</p>
-            <div className="acts">
-              <Link className="btn" href="/devis">Demander un devis</Link>
-            </div>
-          </div>
-
-          <div className="hud" aria-hidden="true">
-            {["Air", "Route", "Mer"].map((m) => (
-              <div key={m}>
-                <span>{m}</span>
-                <b><i /></b>
+      <div className="j-stage">
+        {/* ============ 1. AIR ============ */}
+        <div className="j-scene j-s-air">
+          <div className="j-vis" aria-hidden="true">
+            <div className="j-ground">
+              <div className="j-runway">
+                <i className="j-runway-marks" />
               </div>
+            </div>
+            <div className="j-air-haze" />
+            <div className="j-clouds j-cl-far">
+              {CLOUDS.far.map(([x, y, s, n], i) => (
+                <i key={i} style={{ left: `${x}%`, top: `${y}%`, width: `${s}vw`, backgroundImage: `url(/images/clouds/cloud-${n}.webp)` }} />
+              ))}
+            </div>
+            <div className="j-plane-shadow">
+              <SeqImage seq={SEQ.plane} />
+            </div>
+            <div className="j-clouds j-cl-mid">
+              {CLOUDS.mid.map(([x, y, s, n], i) => (
+                <i key={i} style={{ left: `${x}%`, top: `${y}%`, width: `${s}vw`, backgroundImage: `url(/images/clouds/cloud-${n}.webp)` }} />
+              ))}
+            </div>
+            <div className="j-plane">
+              <SeqImage seq={SEQ.plane} />
+            </div>
+            <div className="j-clouds j-cl-near">
+              {CLOUDS.near.map(([x, y, s, n], i) => (
+                <i key={i} style={{ left: `${x}%`, top: `${y}%`, width: `${s}vw`, backgroundImage: `url(/images/clouds/cloud-${n}.webp)` }} />
+              ))}
+            </div>
+          </div>
+          <div className="j-frame">
+            <StepPanel step={journeySteps[0]} className="j-p-air on-light" data={at(SCENES.air[0] + 0.6)} />
+          </div>
+        </div>
+
+        {/* ============ 2. INTRO ============ */}
+        <div className="j-scene j-s-intro">
+          <div className="j-frame j-intro-grid">
+            <article className="j-panel j-p-intro on-light" {...at(SCENES.intro[0] + 0.6)}>
+              <p className="j-step mono">
+                <i aria-hidden="true" />
+                De bout en bout
+              </p>
+              <RevealText as="h2" className="display j-intro-title" manual>
+                Un seul interlocuteur, du devis à la livraison.
+              </RevealText>
+              <p className="j-intro-text">Décrivez-nous votre besoin, nous revenons vers vous.</p>
+              <Link className="btn" href="/devis">
+                Demander un devis
+              </Link>
+            </article>
+            {/* Chiffres clés : affichés seulement quand LST les aura fournis (src/data/site.ts). */}
+            {keyFigures.length > 0 && (
+              <dl className="j-figures on-light">
+                {keyFigures.slice(0, 3).map((k) => (
+                  <div key={k.label}>
+                    <dt className="mono">{k.label}</dt>
+                    <dd className="display">{k.value}</dd>
+                  </div>
+                ))}
+              </dl>
+            )}
+          </div>
+        </div>
+
+        {/* ============ 3. CHARGEMENT AU PORT ============ */}
+        <div className="j-scene j-s-load">
+          <div className="j-vis" aria-hidden="true">
+            <div className="j-port-bg" />
+            <FrameSequence
+              className="j-load-seq"
+              frames={SEQ.load.frames}
+              mobileFrames={SEQ.load.mobileFrames}
+              progress={live.load}
+              load={armed >= 1}
+              posterFrame={SEQ.load.frames.count - 1}
+            />
+          </div>
+          <div className="j-frame">
+            <StepPanel step={journeySteps[1]} className="j-p-load on-light" data={at(SCENES.load[0] + 0.5)} />
+          </div>
+        </div>
+
+        {/* ============ 4. LE CAMION ROULE (services) ============ */}
+        <div className="j-scene j-s-side">
+          <div className="j-vis" aria-hidden="true">
+            <div className="j-ghost display">Nos services</div>
+            <SeqImage seq={SEQ.side} className="j-side-static" />
+            <div className="j-road">
+              <i className="j-road-marks" />
+            </div>
+          </div>
+          <div className="j-services">
+            <p className="j-step mono on-dark">
+              <i aria-hidden="true" />
+              Nos services
+            </p>
+            <ul className="j-track">
+              {services.map((s, i) => (
+                <li
+                  key={s.title}
+                  className="j-card"
+                  {...at(SCENES.side[0] + 0.5 + ((i + 0.5) / services.length) * (SCENES.side[1] - SCENES.side[0] - 0.9))}
+                >
+                  <div className="j-card-top">
+                    <span className="j-card-ico">
+                      <ServiceIcon name={ICONS[s.art]} />
+                    </span>
+                    <span className="mono j-card-n">
+                      {pad(i + 1)} / {pad(services.length)}
+                    </span>
+                  </div>
+                  <h3>{s.title}</h3>
+                  <p>{s.description}</p>
+                  <ul className="j-card-points">
+                    {s.points.map((p) => (
+                      <li key={p}>{p}</li>
+                    ))}
+                  </ul>
+                  <div className="j-card-acts">
+                    <Link className="j-card-more" href={s.href} aria-label={`Découvrir le service ${s.title}`}>
+                      Découvrir le service <span aria-hidden="true">→</span>
+                    </Link>
+                    <Link className="j-card-cta" href={quoteHref(s.href.split("/").pop())}>
+                      {s.cta}
+                    </Link>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        {/* ============ 5–6. ROUTE VUE DU CIEL (méthode) ============ */}
+        <div className="j-scene j-s-city">
+          <div className="j-vis" aria-hidden="true">
+            {/* eslint-disable-next-line @next/next/no-img-element -- carte vectorielle, transformée en continu */}
+            <img
+              className="j-map"
+              src="/images/journey/city-map.svg"
+              width={route.width}
+              height={route.height}
+              alt=""
+              decoding="async"
+              fetchPriority="low"
+              style={{ width: route.width, height: route.height }}
+            />
+          </div>
+          <div className="j-frame">
+            <article className="j-panel j-p-method on-dark" {...at(SCENES.city[0] + 0.4)}>
+              <p className="j-step mono">
+                <i aria-hidden="true" />
+                {method.eyebrow}
+              </p>
+              <h2>Quatre étapes, de votre besoin à vos opérations.</h2>
+              <p>{method.text}</p>
+            </article>
+          </div>
+          <ol className="j-milestones">
+            {methodSteps.map((s, i) => (
+              <li
+                key={s.title}
+                className="j-milestone"
+                data-side={route.milestones[i].side}
+                {...at(SCENES.city[0] + 0.6 + route.milestones[i].t * (SCENES.city[1] - SCENES.city[0] - 0.8))}
+              >
+                <span className="mono j-milestone-n">{pad(i + 1)}</span>
+                <h3>{s.title}</h3>
+                <p>{s.text}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+
+        {/* ============ 7. LA MER (à propos) ============ */}
+        <div className="j-scene j-s-sea">
+          <div className="j-vis" aria-hidden="true">
+            <div className="j-ocean">{armed >= 3 && <Ocean state={live.ocean} active={mode === "live"} />}</div>
+            <SeqImage seq={SEQ.ship} className="j-ship" />
+          </div>
+          <div className="j-frame">
+            <StepPanel step={journeySteps[2]} className="j-p-sea on-dark" data={at(SCENES.sea[0] + 0.5)} />
+            <article className="j-panel j-p-about on-dark" {...at(SCENES.sea[0] + 1.9)}>
+              <p className="j-step mono">
+                <i aria-hidden="true" />
+                {whyLst.eyebrow}
+              </p>
+              <h2>{whyLst.title}</h2>
+              <p>{whyLst.text}</p>
+              <Link className="j-about-cta" href={whyLst.cta.href}>
+                {whyLst.cta.label} <FontAwesomeIcon icon={faArrowRight} aria-hidden />
+              </Link>
+            </article>
+          </div>
+          <ul className="j-reasons">
+            {reasons.map((r, i) => (
+              <li key={r.title} className="j-reason on-dark" data-i={i} {...at(SCENES.sea[0] + 2.2)}>
+                <FontAwesomeIcon icon={REASON_ICONS[i % REASON_ICONS.length]} aria-hidden className="j-reason-ico" />
+                <h3>{r.title}</h3>
+                <p>{r.text}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* ============ Camion (commun aux scènes 4 à 6) ============ */}
+        <div className="j-truck" aria-hidden="true">
+          <div className="j-truck-side">
+            <SeqImage seq={SEQ.side} />
+            {SEQ.side.wheels.map((w, i) => (
+              <RotatingWheel key={i} src={WHEEL_SRC} x={w.x} y={w.y} diameter={w.d} distance={live.distance} />
             ))}
           </div>
+          <FrameSequence
+            className="j-truck-rot"
+            frames={SEQ.rotate.frames}
+            mobileFrames={SEQ.rotate.mobileFrames}
+            progress={live.rotate}
+            load={armed >= 2}
+          />
+          <SeqImage seq={SEQ.top} className="j-truck-top" />
+        </div>
+
+        <SpeedHUD className="j-speed" />
+        <div className="hud j-hud" aria-hidden="true">
+          {["Air", "Route", "Mer"].map((m) => (
+            <div key={m}>
+              <span>{m}</span>
+              <b>
+                <i />
+              </b>
+            </div>
+          ))}
         </div>
       </div>
     </section>
   );
 }
 
-const LAND =
-  "M1000 -400C960 300 1080 650 1020 1000S960 1700 1060 2100S1010 2600 1040 3000L2960 3000C3020 2400 2950 2000 3000 1720L3000 1440C3050 1100 2950 700 3010 300S2990 -100 3000 -400Z";
-const ROUTE_AIR ="M150 1900C700 1600 800 700 1230 700L1760 700";
-const ROUTE_ROAD =
-  "M1820 800L1820 1000Q1820 1040 1860 1040L2400 1040Q2440 1040 2440 1080L2440 1500Q2440 1540 2480 1540L2930 1540";
-const ROUTE_SEA = "M3290 1668C3600 1668 3760 1860 4380 2080";
+function StepPanel({
+  step,
+  className,
+  data,
+}: {
+  step: (typeof journeySteps)[number];
+  className: string;
+  data: Record<string, number>;
+}) {
+  return (
+    <article className={`j-panel ${className}`} {...data}>
+      <p className="j-step mono">
+        <i aria-hidden="true" />
+        {step.step}
+      </p>
+      <h2>{step.title}</h2>
+      <p>{step.text}</p>
+      <ul>
+        {step.points.map((p) => (
+          <li key={p}>{p}</li>
+        ))}
+      </ul>
+    </article>
+  );
+}

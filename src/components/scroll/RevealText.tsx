@@ -16,6 +16,11 @@ type Props = {
   end?: string;
   /** Lissage du suivi du défilement (true = immédiat, nombre = secondes de rattrapage). */
   scrub?: boolean | number;
+  /**
+   * Découpe seulement (mots en .rt-word) : l'animation est pilotée par une timeline parente,
+   * par exemple quand le texte est dans une scène collante (position: sticky) qui ne défile pas.
+   */
+  manual?: boolean;
 };
 
 /**
@@ -33,6 +38,7 @@ export function RevealText({
   start = "top 85%",
   end = "bottom 45%",
   scrub = true,
+  manual = false,
 }: Props) {
   const ref = useRef<HTMLElement>(null);
 
@@ -40,6 +46,10 @@ export function RevealText({
     () => {
       const el = ref.current;
       if (!el || prefersReducedMotion()) return;
+      if (manual) {
+        const only = SplitText.create(el, { type: "words", aria: "auto", wordsClass: "rt-word" });
+        return () => only.revert();
+      }
       const split = SplitText.create(el, {
         type: "words",
         aria: "auto",
@@ -59,7 +69,7 @@ export function RevealText({
       });
       return () => split.revert();
     },
-    { scope: ref, dependencies: [from, start, end, scrub] },
+    { scope: ref, dependencies: [from, start, end, scrub, manual] },
   );
 
   return (

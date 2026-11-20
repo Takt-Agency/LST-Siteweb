@@ -33,6 +33,11 @@ type Props = {
   align?: { x: number; y: number };
   /** Charger tout de suite (scène visible au chargement) plutôt qu'à l'approche de la scène. */
   priority?: boolean;
+  /**
+   * Autoriser le chargement (défaut : oui). À piloter quand la séquence est dans une scène collante,
+   * toujours « à l'écran » : on n'arme alors le chargement qu'à l'approche de la scène dans la timeline.
+   */
+  load?: boolean;
   /** Image statique (reduced-motion, attente du chargement). Par défaut : la frame `posterFrame` en WebP. */
   poster?: string;
   posterFrame?: number;
@@ -60,6 +65,7 @@ export function FrameSequence({
   fit = "contain",
   align = { x: 0.5, y: 0.5 },
   priority = false,
+  load: allowLoad = true,
   poster,
   posterFrame = 0,
   cacheSize,
@@ -89,7 +95,7 @@ export function FrameSequence({
     const wrap = wrapRef.current;
     const canvas = canvasRef.current;
     const posterEl = posterRef.current;
-    if (reduced || !wrap || !canvas) return;
+    if (reduced || !allowLoad || !wrap || !canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
@@ -277,17 +283,16 @@ export function FrameSequence({
       canvas.style.opacity = "0";
       if (posterEl) posterEl.style.opacity = "1";
     };
-  }, [reduced, mobile, pattern, frameCount, pad, cacheSize, priority, hasExternalProgress]);
+  }, [reduced, allowLoad, mobile, pattern, frameCount, pad, cacheSize, priority, hasExternalProgress]);
 
   const posterSrc = poster ?? frameUrl(set, Math.min(posterFrame, set.count - 1), "webp");
 
   return (
     <div
       ref={wrapRef}
-      className={className}
+      className={`frame-seq${className ? ` ${className}` : ""}`}
       aria-hidden="true"
       style={{
-        position: "relative",
         aspectRatio: set.aspect ?? frames.aspect,
         ...style,
       }}
